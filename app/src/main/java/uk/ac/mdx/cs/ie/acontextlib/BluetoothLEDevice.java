@@ -171,7 +171,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
             new BluetoothAdapter.LeScanCallback() {
                 @Override
                 public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    if (device.getAddress() == mDeviceID) {
+                    if (device.getAddress().equals(mDeviceID)) {
                         mBluetoothGatt = device.connectGatt(mContext, false, mGattCallback);
                     }
                 }
@@ -182,7 +182,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 
-            if (status == BluetoothProfile.STATE_CONNECTED) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();
             }
         }
@@ -221,7 +221,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-
+            checkContext(characteristic);
         }
     };
 
