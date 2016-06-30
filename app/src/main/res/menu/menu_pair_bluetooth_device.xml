@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="uk.ac.mdx.cs.ie.workstress.PairBluetoothDevice">
+    <item
+        android:id="@+id/action_rescan"
+        android:orderInCategory="100"
+        android:title="@string/rescan"
+        app:showAsAction="never" />
+</menu>

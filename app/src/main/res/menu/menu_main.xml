@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.MainActivity">
+    <item
+        android:id="@+id/action_setname"
+        android:orderInCategory="100"
+        android:title="@string/action_setname"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_startstop"
+        android:orderInCategory="200"
+        android:title="@string/action_startstop"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/pair_device"
+        android:title="@string/pair_device"
+        android:orderInCategory="300"
+        app:showAsAction="never" />
+</menu>

@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">WorkStress</string>
+    <string name="action_setname">Set User</string>
+    <string name="action_startstop">Start/Stop Heart Monitor</string>
+    <string name="settings">Heartbeat Monitor</string>
+    <string name="collecting">Collecting heart rate...</string>
+    <string name="serviceNotBound">Service not started. Try again later</string>
+    <string name="userunknown">You need to set a username first.</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="username">Username</string>
+    <string name="servicecantbind">Cannot connect to service. Try again later</string>
+    <string name="noreportneeded">No report currently required...</string>
+    <string name="pair_device">Pair Heartrate Monitor</string>
+    <string name="title_activity_pair_bluetooth_device">PairBluetoothDevice</string>
+    <string name="rescan">Rescan</string>
+    <string name="pairdevice">Pair Bluetooth Device</string>
+    <string name="reportsubmitted">Report submitted</string>
+    <string name="undo">Undo</string>
+    <string name="newreport">New Report</string>
+
+    <!-- Questions -->
+    <string name="question1">I am confident I will complete the task</string>
+    <string name="question2">My team has enough members for the task</string>
+    <string name="question3">My role is reasonably challenging</string>
+    <string name="question4">The tasks are clear and specific</string>
+    <string name="question5">Everyone participates equally in the team</string>
+    <string name="question6">Team members communicate frequently</string>
+    <string name="question7">I am stressed because of the project</string>
+    <string name="question8">I am dissatisfied because of the project</string>
+</resources>
