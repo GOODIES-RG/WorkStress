@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private static final String LOG_TAG = "WorkStressActivity";
     public boolean mReportNeeded = false;
     private int mReportNumber = 0;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        mMenu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -233,10 +235,14 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
         try {
 
+            MenuItem changeUsername = mMenu.getItem(0);
+
             if (mStressService.isCollecting()) {
                 mStressService.stopHeartMonitor();
+                changeUsername.setEnabled(true);
             } else {
                 mStressService.startHeartMonitor();
+                changeUsername.setEnabled(false);
             }
 
         } catch (RemoteException e) {
