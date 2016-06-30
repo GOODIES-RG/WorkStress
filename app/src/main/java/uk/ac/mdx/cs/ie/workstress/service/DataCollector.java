@@ -48,7 +48,7 @@ public class DataCollector {
         mContext = context;
         mUploader = new DataUploader(this, service);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
-
+        mUserID = mSettings.getInt("userid", 0);
         mHeartrateMonitor = new HeartRateMonitor(mContext, new ContextReceiver() {
             @Override
             public void newContextValue(String name, long value) {
@@ -92,7 +92,7 @@ public class DataCollector {
 
     public void newUserId(Integer userid) {
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.putInt("username", userid);
+        editor.putInt("userid", userid);
         editor.commit();
         mUserID = userid;
     }

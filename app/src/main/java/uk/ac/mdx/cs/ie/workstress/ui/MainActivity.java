@@ -224,7 +224,9 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     private void setUsername() {
         TextDialogFragment userFragment = TextDialogFragment.newInstance(R.string.action_setname);
+        userFragment.setText(mUser);
         userFragment.show(mFragManager, "userdialog");
+
     }
 
     private void startStopMonitor() {

@@ -31,7 +31,8 @@ import uk.ac.mdx.cs.ie.workstress.utility.DialogReturnInterface;
  */
 public class TextDialogFragment extends DialogFragment {
 
-    private EditText mText;
+    private EditText mTextView;
+    private String mText = "";
     private AlertDialog mDialog;
     private Activity mActivity;
 
@@ -72,15 +73,16 @@ public class TextDialogFragment extends DialogFragment {
         mDialog.setView(dialogView);
         setCancelable(false);
 
-        mText = (EditText) dialogView.findViewById(R.id.txt_text);
+        mTextView = (EditText) dialogView.findViewById(R.id.txt_text);
+        mTextView.setText(mText);
 
         return mDialog;
     }
 
     private void doPositiveClick() {
-        String text = mText.getText().toString();
+        mText = mTextView.getText().toString();
 
-        ((DialogReturnInterface) getActivity()).doPositiveButtonClick(text);
+        ((DialogReturnInterface) getActivity()).doPositiveButtonClick(mText);
     }
 
     private void doNegativeClick() {
@@ -88,6 +90,10 @@ public class TextDialogFragment extends DialogFragment {
     }
 
     public void setText(String text) {
-        mText.setText(text);
+        mText = text;
+
+        if (mTextView != null) {
+            mTextView.setText(text);
+        }
     }
 }
