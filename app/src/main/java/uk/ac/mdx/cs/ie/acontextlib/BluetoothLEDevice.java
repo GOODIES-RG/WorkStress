@@ -43,8 +43,8 @@ public abstract class BluetoothLEDevice extends ContextObserver {
     private BluetoothGatt mBluetoothGatt;
     private Handler mHandler = new Handler();
     private boolean mScanning;
-    private ArrayList<UUID> mInterestedServices = new ArrayList<>();
-    private ArrayList<UUID> mInterestedMeasurements = new ArrayList<>();
+    private ArrayList<UUID> mInterestedServices;
+    private ArrayList<UUID> mInterestedMeasurements;
     private String mDeviceID;
     private UUID mPhoneID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
@@ -64,6 +64,9 @@ public abstract class BluetoothLEDevice extends ContextObserver {
                 (BluetoothManager) c.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
 
+        mInterestedServices = new ArrayList<>();
+        mInterestedMeasurements = new ArrayList<>();
+
         mInterestedServices.add(service);
         mInterestedMeasurements.add(measurement);
 
@@ -82,7 +85,6 @@ public abstract class BluetoothLEDevice extends ContextObserver {
 
     }
 
-
     @Override
     public boolean setContextParameters(HashMap<String, Object> parameters) {
         if (super.setContextParameters(parameters)) {
@@ -90,6 +92,10 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         } else {
             return false;
         }
+    }
+
+    public void setDeviceID(String device) {
+        mDeviceID = device;
     }
 
     private void scanForLeDevice(final boolean enable) {
@@ -114,7 +120,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
 
     @Override
     public boolean start() {
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (!mBluetoothAdapter.isEnabled() || mDeviceID.isEmpty()) {
             return false;
         }
 
@@ -139,7 +145,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
     @Override
     public boolean resume() {
 
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (!mBluetoothAdapter.isEnabled() || mDeviceID.isEmpty()) {
             return false;
         }
 
