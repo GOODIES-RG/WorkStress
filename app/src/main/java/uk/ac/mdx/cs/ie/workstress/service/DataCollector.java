@@ -30,7 +30,7 @@ import uk.ac.mdx.cs.ie.acontextlib.HeartRateMonitor;
  */
 public class DataCollector {
 
-    private static final String WORK_PREFS = "WorkStressPrefs";
+    private static final String WORK_PREFS = "StressPrefs";
     private DataUploader mUploader;
     private ArrayList<Integer> mHeartrates = new ArrayList<>(40);
     private ArrayList<Long> mTimestamps = new ArrayList<>(40);
@@ -104,6 +104,12 @@ public class DataCollector {
     }
 
     public void startCollecting() {
+
+        String device = mSettings.getString("macaddress", "");
+
+        mHeartrateMonitor.setDeviceID(device);
+        mHeartrateMonitor.start();
+
         mCollecting = true;
 
         mTimer = new Timer();
@@ -114,6 +120,13 @@ public class DataCollector {
             }
         }, INTERVAL, INTERVAL);
 
+    }
+
+    public void stopCollection() {
+        mHeartrateMonitor.stop();
+        mCollecting = false;
+        mTimer.cancel();
+        uploadLog();
     }
 
     private void uploadLog() {
@@ -134,5 +147,9 @@ public class DataCollector {
     public synchronized void uploadComplete() {
         mUploadHeartrates.clear();
         mUploadTimestamps.clear();
+    }
+
+    public void sendReport() {
+
     }
 }
