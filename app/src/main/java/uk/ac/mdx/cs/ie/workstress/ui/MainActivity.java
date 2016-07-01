@@ -18,8 +18,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     public boolean mReportNeeded = false;
     private int mReportNumber = 0;
     private Menu mMenu;
+    private boolean mNoDoze = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +141,20 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         }
 
         mMainFragment = (MainActivityFragment) mFragManager.findFragmentById(R.id.mainfragment);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+            String packageName = mContext.getPackageName();
+
+            if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
+                mNoDoze = false;
+                Snackbar.make(mFabButton, getText(R.string.batteryignore), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+
+        }
+
+
 
         bindToService();
     }
@@ -233,20 +250,25 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     private void startStopMonitor() {
 
-        try {
+        if (mNoDoze) {
+            try {
 
-            MenuItem changeUsername = mMenu.getItem(0);
+                MenuItem changeUsername = mMenu.getItem(0);
 
-            if (mStressService.isCollecting()) {
-                mStressService.stopHeartMonitor();
-                changeUsername.setEnabled(true);
-            } else {
-                mStressService.startHeartMonitor();
-                changeUsername.setEnabled(false);
+                if (mStressService.isCollecting()) {
+                    mStressService.stopHeartMonitor();
+                    changeUsername.setEnabled(true);
+                } else {
+                    mStressService.startHeartMonitor();
+                    changeUsername.setEnabled(false);
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
-
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } else {
+            Snackbar.make(mFabButton, getText(R.string.needbatteryignore), Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
         }
     }
 
