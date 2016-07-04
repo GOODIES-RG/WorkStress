@@ -252,15 +252,19 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
         if (mNoDoze) {
             try {
-
                 MenuItem changeUsername = mMenu.getItem(0);
 
                 if (mStressService.isCollecting()) {
                     mStressService.stopHeartMonitor();
                     changeUsername.setEnabled(true);
                 } else {
-                    mStressService.startHeartMonitor();
-                    changeUsername.setEnabled(false);
+                    if (mUser.isEmpty()) {
+                        Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    } else {
+                        mStressService.startHeartMonitor();
+                        changeUsername.setEnabled(false);
+                    }
                 }
 
             } catch (RemoteException e) {
