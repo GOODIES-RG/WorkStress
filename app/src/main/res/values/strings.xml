@@ -18,6 +18,10 @@
     <string name="reportsubmitted">Report submitted</string>
     <string name="undo">Undo</string>
     <string name="newreport">New Report</string>
+    <string name="reportneeded">New Report Needed</string>
+    <string name="reportneededtext">Please complete the report</string>
+    <string name="batteryignore">Please enable ignore battery optimisation for this app</string>
+    <string name="needbatteryignore">Cannot start until battery optimisation for this app is ignored</string>
 
     <!-- Questions -->
     <string name="question1">I am confident I will complete the task</string>

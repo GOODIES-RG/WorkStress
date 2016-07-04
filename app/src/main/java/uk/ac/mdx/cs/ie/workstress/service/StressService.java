@@ -12,10 +12,15 @@ limitations under the License.
 
 package uk.ac.mdx.cs.ie.workstress.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -38,12 +43,14 @@ public class StressService extends Service {
     private Context mContext;
     private boolean mCollecting = false;
     private DataCollector mCollector;
+    private NotificationManager mNotificationManager;
 
 
     @Override
     public void onCreate() {
         mContext = getApplicationContext();
         mCollector = new DataCollector(mContext, this);
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Nullable
@@ -101,6 +108,7 @@ public class StressService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setContentTitle(getText(R.string.app_name));
         builder.setContentText(getText(R.string.collecting));
+        builder.setSmallIcon(R.mipmap.ic_launcher);
 
         Intent resultIntent = new Intent(mContext, MainActivity.class);
 
@@ -116,6 +124,28 @@ public class StressService extends Service {
 
     public void showReportNotification() {
 
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        Intent resultIntent = new Intent(mContext, MainActivity.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, resultIntent, 0);
+
+        Notification.Builder builder = new Notification.Builder(mContext);
+        builder.setContentTitle(getText(R.string.reportneeded));
+        builder.setContentText(getText(R.string.reportneededtext));
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentIntent(resultPendingIntent);
+        builder.setSound(alarmSound);
+        builder.setLights(Color.BLUE, 500, 500);
+        builder.setVibrate(new long[]{500, 500, 500, 500, 500});
+        builder.setAutoCancel(true);
+
+        mNotificationManager.notify(2, builder.build());
+
+
+    }
+
+    public void dismissReportNotification() {
+        mNotificationManager.cancel(2);
     }
 
     public boolean stopHeartMonitor() {
