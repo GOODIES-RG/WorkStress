@@ -22,6 +22,7 @@ import java.util.TimerTask;
 
 import uk.ac.mdx.cs.ie.acontextlib.ContextReceiver;
 import uk.ac.mdx.cs.ie.acontextlib.HeartRateMonitor;
+import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 
 /**
  * Handles collection of data including heartrate data
@@ -41,11 +42,17 @@ public class DataCollector {
     private Timer mTimer;
     private boolean mCollecting = false;
     private static final int INTERVAL = 20000;
+    private static final int REPORT_INTERVAL = 600000;
     private int mUserID;
     private HeartRateMonitor mHeartrateMonitor;
+    private StressService mService;
+    private Timer mReportTimer;
+    private int mReportTimerCounter = 0;
+    private boolean mAwaitingReport = false;
 
     public DataCollector(Context context, StressService service) {
         mContext = context;
+        mService = service;
         mUploader = new DataUploader(this, service);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
@@ -90,6 +97,34 @@ public class DataCollector {
         editor.commit();
     }
 
+    public void needReport(int reportID) {
+        if (!mAwaitingReport) {
+            SharedPreferences.Editor editor = mSettings.edit();
+            editor.putInt("reportid", reportID);
+            editor.commit();
+
+            mReportTimer = new Timer();
+            mReportTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+
+                    if (mReportTimerCounter < 5) {
+                        mService.dismissReportNotification();
+                        mService.showReportNotification();
+                        mReportTimerCounter++;
+                    } else {
+                        mUploader.ranOutOfTime(mUserID);
+                        mReportTimerCounter = 0;
+                        mReportTimer.cancel();
+                        mService.dismissReportNotification();
+                    }
+                }
+            }, REPORT_INTERVAL, REPORT_INTERVAL);
+
+            mService.showReportNotification();
+        }
+    }
+
     public void newUserId(Integer userid) {
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt("userid", userid);
@@ -97,6 +132,10 @@ public class DataCollector {
         mUserID = userid;
     }
 
+    public boolean submitReport(StressReport report) {
+        mUploader.uploadReport(mUserID, mSettings.getInt("reportid", 0), report);
+        return true;
+    }
 
     private synchronized void log(int heartrate) {
         mHeartrates.add(heartrate);
@@ -151,5 +190,12 @@ public class DataCollector {
 
     public void sendReport() {
 
+    }
+
+    public void onDestroy() {
+        stopCollection();
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putInt("reportid", 0);
+        editor.commit();
     }
 }

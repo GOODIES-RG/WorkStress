@@ -62,6 +62,11 @@ public class StressService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
+
+        if (IStressService.class.getName().equals(intent.getAction())) {
+            BootReceiver.completeWakefulIntent(intent);
+        }
+
         return START_STICKY;
     }
 
@@ -154,5 +159,11 @@ public class StressService extends Service {
         mCollecting = false;
         mWakeLock.release();
         return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopHeartMonitor();
     }
 }
