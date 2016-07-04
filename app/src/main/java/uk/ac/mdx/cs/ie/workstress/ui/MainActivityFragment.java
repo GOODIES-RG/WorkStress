@@ -102,7 +102,7 @@ public class MainActivityFragment extends Fragment implements DiscreteSeekBar.On
 
     public StressReport getStressData() {
 
-        mReport.date = mDateTimeFormatter.format(mCurrentDate.getTime());
+        mReport.date = (int) (System.currentTimeMillis() / 1000L);
         return mReport;
     }
 

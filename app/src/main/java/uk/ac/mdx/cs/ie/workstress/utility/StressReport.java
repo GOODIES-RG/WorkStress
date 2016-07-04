@@ -22,7 +22,7 @@ import android.os.Parcelable;
  */
 public class StressReport implements Parcelable {
 
-    public String date;
+    public int date;
     public int question1;
     public int question2;
     public int question3;
@@ -39,7 +39,7 @@ public class StressReport implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(date);
+        dest.writeInt(date);
         dest.writeInt(question1);
         dest.writeInt(question2);
         dest.writeInt(question3);
@@ -69,7 +69,7 @@ public class StressReport implements Parcelable {
     }
 
     private StressReport(Parcel in) {
-        date = in.readString();
+        date = in.readInt();
         question1 = in.readInt();
         question2 = in.readInt();
         question3 = in.readInt();
