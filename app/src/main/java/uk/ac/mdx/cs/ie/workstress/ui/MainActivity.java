@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         mUser = mSettings.getString(USER_PREF, "");
         mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
-        if (mReportNumber == 0) {
+        if (mReportNumber > 0) {
             mReportNeeded = true;
         }
 
