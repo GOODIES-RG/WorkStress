@@ -37,7 +37,8 @@ public class DataUploader {
     private static final String API_KEY = "";
     private static final String RPC_REPORT_FUNCTION = "workstress.newreport";
     private static final String RPC_HEARTBEAT_FUNCTION = "workstress.newheartbeats";
-    private static final String RPC_NEWUSER = "workstress.getuser";
+    private static final String RPC_NEWUSER_FUNCTION = "workstress.getuser";
+    private static final String RPC_OUTOFTIME_FUNCTION = "workstress.outoftime";
 
     private XMLRPCClient mRPCClient;
     private static final String LOG_TAG = "DataUploader";
@@ -56,8 +57,36 @@ public class DataUploader {
         }
     }
 
+    public boolean ranOutOfTime(final Integer user) {
 
-    public boolean uploadReport(final Integer user, final StressReport report) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ArrayList params = new ArrayList();
+                    params.add(API_KEY);
+                    params.add(user);
+
+                    Object i = mRPCClient.call(RPC_OUTOFTIME_FUNCTION, params);
+
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+            }
+        });
+
+        t.start();
+
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return true;
+    }
+
+    public boolean uploadReport(final Integer user, final Integer reportNumber, final StressReport report) {
 
         final boolean[] success = {false};
 
@@ -68,6 +97,16 @@ public class DataUploader {
                     ArrayList params = new ArrayList();
                     params.add(API_KEY);
                     params.add(user);
+                    params.add(reportNumber);
+                    params.add(report.date);
+                    params.add(report.question1);
+                    params.add(report.question2);
+                    params.add(report.question3);
+                    params.add(report.question4);
+                    params.add(report.question5);
+                    params.add(report.question6);
+                    params.add(report.question7);
+                    params.add(report.question8);
 
                     Object i = mRPCClient.call(RPC_REPORT_FUNCTION, params);
 
@@ -106,24 +145,24 @@ public class DataUploader {
 
                         Integer status = (Integer) result;
 
-                        if (status > 1) {
+                        if (status > -1) {
                             mCollector.uploadComplete();
                         }
 
-                        if (status == 2) {
-                            mService.showReportNotification();
+                        if (status > 0) {
+                            mCollector.needReport(status);
                         }
 
                     }
 
                     @Override
                     public void onError(long id, XMLRPCException error) {
-
+                        Log.e(LOG_TAG, error.getMessage());
                     }
 
                     @Override
                     public void onServerError(long id, XMLRPCServerException error) {
-
+                        Log.e(LOG_TAG, error.getMessage());
                     }
                 }, RPC_HEARTBEAT_FUNCTION, params);
             }
@@ -141,7 +180,7 @@ public class DataUploader {
                 params.add(username);
 
                 try {
-                    Object i = mRPCClient.call(RPC_NEWUSER, params);
+                    Object i = mRPCClient.call(RPC_NEWUSER_FUNCTION, params);
 
                     if (i instanceof Integer) {
                         mCollector.newUserId((Integer) i);

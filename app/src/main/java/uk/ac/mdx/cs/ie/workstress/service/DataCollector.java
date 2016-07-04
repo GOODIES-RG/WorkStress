@@ -113,16 +113,24 @@ public class DataCollector {
                         mService.showReportNotification();
                         mReportTimerCounter++;
                     } else {
-                        mUploader.ranOutOfTime(mUserID);
-                        mReportTimerCounter = 0;
-                        mReportTimer.cancel();
-                        mService.dismissReportNotification();
+                        outOfTime();
                     }
                 }
             }, REPORT_INTERVAL, REPORT_INTERVAL);
 
             mService.showReportNotification();
         }
+    }
+
+    private void outOfTime() {
+        mUploader.ranOutOfTime(mUserID);
+        mReportTimerCounter = 0;
+        mReportTimer.cancel();
+        mService.dismissReportNotification();
+
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putInt("reportid", 0);
+        editor.commit();
     }
 
     public void newUserId(Integer userid) {
@@ -193,9 +201,6 @@ public class DataCollector {
     }
 
     public void onDestroy() {
-        stopCollection();
-        SharedPreferences.Editor editor = mSettings.edit();
-        editor.putInt("reportid", 0);
-        editor.commit();
+        outOfTime();
     }
 }

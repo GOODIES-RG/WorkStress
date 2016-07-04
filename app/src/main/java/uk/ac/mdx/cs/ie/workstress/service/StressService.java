@@ -165,5 +165,6 @@ public class StressService extends Service {
     public void onDestroy() {
         super.onDestroy();
         stopHeartMonitor();
+        mCollector.onDestroy();
     }
 }
