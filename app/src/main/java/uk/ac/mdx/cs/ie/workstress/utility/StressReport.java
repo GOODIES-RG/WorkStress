@@ -23,14 +23,14 @@ import android.os.Parcelable;
 public class StressReport implements Parcelable {
 
     public int date;
-    public int question1;
-    public int question2;
-    public int question3;
-    public int question4;
-    public int question5;
-    public int question6;
-    public int question7;
-    public int question8;
+    public int question1 = 1;
+    public int question2 = 1;
+    public int question3 = 1;
+    public int question4 = 1;
+    public int question5 = 1;
+    public int question6 = 1;
+    public int question7 = 1;
+    public int question8 = 1;
 
     @Override
     public int describeContents() {
