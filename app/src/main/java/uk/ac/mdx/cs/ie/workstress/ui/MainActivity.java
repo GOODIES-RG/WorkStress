@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private Context mContext;
     private boolean mBound = false;
     private static final String STRESS_PREFS = "StressPrefs";
-    private static final String USER_PREF = "username";
+    private static final String USER_PREF = "userid";
     private static final String REPORT_PREF = "reportid";
-    private String mUser;
+    private int mUser;
     private SharedPreferences mSettings;
     private FragmentManager mFragManager;
     private FloatingActionButton mFabButton;
@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private int mReportNumber = 0;
     private Menu mMenu;
     private boolean mNoDoze = true;
-    private Toolbar mToolbar;
     private boolean mJustStarted = false;
     private BroadcastReceiver mBReceiver;
 
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         bindToService();
 
         mSettings = mContext.getSharedPreferences(STRESS_PREFS, 0);
-        mUser = mSettings.getString(USER_PREF, "");
+        mUser = mSettings.getInt(USER_PREF, 0);
 
         mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
@@ -140,15 +139,15 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         setContentView(R.layout.activity_main);
 
         mFragManager = getSupportFragmentManager();
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         mFabButton = (FloatingActionButton) findViewById(R.id.fab);
 
         if (mReportNeeded) {
-            mToolbar.setTitle(R.string.newreport);
+            toolbar.setTitle(R.string.newreport);
             mFabButton.setVisibility(View.VISIBLE);
         }
 
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(toolbar);
 
 
         if (mFabButton != null) {
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
                     if (mBound) {
 
-                        if (mUser == "") {
+                        if (mUser < 1) {
                             Snackbar.make(view, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
                                     .setAction("Action", null).show();
                         } else {
@@ -299,10 +298,8 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     }
 
     private void setUsername() {
-        TextDialogFragment userFragment = TextDialogFragment.newInstance(R.string.action_setname);
-        userFragment.setText(mUser);
+        TextDialogFragment userFragment = TextDialogFragment.newInstance(R.string.password);
         userFragment.show(mFragManager, "userdialog");
-
     }
 
     private void startStopMonitor() {
@@ -315,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
                     mStressService.stopHeartMonitor();
                     changeUsername.setEnabled(true);
                 } else {
-                    if (mUser.isEmpty()) {
+                    if (mUser < 1) {
                         Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     } else {
@@ -335,13 +332,11 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     @Override
     public void doPositiveButtonClick(Object... para) {
+        String password = (String) para[0];
 
-        mUser = (String) para[0];
-        mUser = mUser.toLowerCase();
-        try {
-            mStressService.setUsername(mUser);
-        } catch (RemoteException e) {
-            Log.e(LOG_TAG, "Cannot Set Username");
+        if (password.equals("setusername")) {
+            Intent intent = new Intent(this, UserSelectionActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -358,9 +353,13 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     public void onBackPressed() {
 
         try {
-            if (mStressService.isCollecting()) {
-                Snackbar.make(mFabButton, getText(R.string.cannotback), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            if (mBound) {
+                if (mStressService.isCollecting()) {
+                    Snackbar.make(mFabButton, getText(R.string.cannotback), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    super.onBackPressed();
+                }
             } else {
                 super.onBackPressed();
             }

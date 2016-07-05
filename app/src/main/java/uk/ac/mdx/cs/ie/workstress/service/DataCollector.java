@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -54,7 +55,7 @@ public class DataCollector {
     public DataCollector(Context context, StressService service) {
         mContext = context;
         mService = service;
-        mUploader = new DataUploader(this, service);
+        mUploader = new DataUploader(this);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
         mHeartrateMonitor = new HeartRateMonitor(mContext, new ContextReceiver() {
@@ -90,12 +91,11 @@ public class DataCollector {
         });
     }
 
-    public void setUsername(String username) {
-        mUploader.getUserId(username);
-
+    public void setUser(int user) {
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.putString("username", username);
+        editor.putInt("userid", user);
         editor.commit();
+        mUserID = user;
     }
 
     public void needReport(int reportID) {
@@ -138,13 +138,6 @@ public class DataCollector {
         editor.commit();
         mReportID = 0;
         mService.reportNeededBroadcast(false);
-    }
-
-    public void newUserId(Integer userid) {
-        SharedPreferences.Editor editor = mSettings.edit();
-        editor.putInt("userid", userid);
-        editor.commit();
-        mUserID = userid;
     }
 
     public boolean submitReport(StressReport report) {
@@ -222,5 +215,9 @@ public class DataCollector {
         editor.commit();
         mReportID = 0;
         mService.reportNeededBroadcast(false);
+    }
+
+    public List getAllUsers() {
+        return mUploader.getAllUsers();
     }
 }
