@@ -18,12 +18,16 @@ import android.util.Log;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import de.timroes.axmlrpc.XMLRPCCallback;
 import de.timroes.axmlrpc.XMLRPCClient;
 import de.timroes.axmlrpc.XMLRPCException;
 import de.timroes.axmlrpc.XMLRPCServerException;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
+import uk.ac.mdx.cs.ie.workstress.utility.WorkstressUser;
 
 /**
  * Class to handle communication with webservice for data collection
@@ -37,18 +41,16 @@ public class DataUploader {
     private static final String API_KEY = "";
     private static final String RPC_REPORT_FUNCTION = "workstress.newreport";
     private static final String RPC_HEARTBEAT_FUNCTION = "workstress.newheartbeats";
-    private static final String RPC_NEWUSER_FUNCTION = "workstress.getuser";
     private static final String RPC_OUTOFTIME_FUNCTION = "workstress.outoftime";
+    private static final String RPC_GETALLUSERS_FUNCTION = "workstress.getallusers";
 
     private XMLRPCClient mRPCClient;
     private static final String LOG_TAG = "DataUploader";
     private DataCollector mCollector;
-    private StressService mService;
 
-    public DataUploader(DataCollector collector, StressService service) {
+    public DataUploader(DataCollector collector) {
 
         mCollector = collector;
-        mService = service;
 
         try {
             mRPCClient = new XMLRPCClient(new URL(SERVER_URL));
@@ -86,6 +88,50 @@ public class DataUploader {
         return true;
     }
 
+    public List getAllUsers() {
+
+        final ArrayList users = new ArrayList();
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ArrayList params = new ArrayList();
+                    params.add(API_KEY);
+
+                    Object o = mRPCClient.call(RPC_GETALLUSERS_FUNCTION, params);
+
+                    if (o instanceof HashMap) {
+
+                        HashMap<String, String> results = (HashMap<String, String>) o;
+
+                        for (Map.Entry<String, String> entry : results.entrySet()) {
+                            WorkstressUser user = new WorkstressUser();
+                            user.userid = Integer.parseInt(entry.getKey());
+                            user.username = entry.getValue();
+                            users.add(user);
+                        }
+
+                    } else {
+                        Log.e(LOG_TAG, "Couldn't get Users: " + (Integer) o);
+                    }
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage().toString());
+                }
+            }
+        });
+
+        t.start();
+
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+        return users;
+    }
+
     public boolean uploadReport(final Integer user, final Integer reportNumber, final StressReport report) {
 
         final boolean[] success = {false};
@@ -110,8 +156,10 @@ public class DataUploader {
 
                     Object i = mRPCClient.call(RPC_REPORT_FUNCTION, params);
 
+                    mCollector.submittedReport();
+
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, e.getMessage().toString());
                 }
             }
         });
@@ -168,38 +216,4 @@ public class DataUploader {
             }
         }).start();
     }
-
-    public void getUserId(final String username) {
-
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                ArrayList params = new ArrayList();
-                params.add(API_KEY);
-                params.add(username);
-
-                try {
-                    Object i = mRPCClient.call(RPC_NEWUSER_FUNCTION, params);
-
-                    if (i instanceof Integer) {
-                        mCollector.newUserId((Integer) i);
-                    }
-
-                } catch (Exception e) {
-                    Log.e(LOG_TAG, "Cannot call getUserId");
-                }
-            }
-        });
-
-        t.start();
-
-        try {
-            t.join();
-        } catch (InterruptedException e) {
-            Log.e(LOG_TAG, e.getMessage());
-        }
-    }
-
-
 }

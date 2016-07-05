@@ -10,23 +10,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package uk.ac.mdx.cs.ie.workstress.service;
-
-import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
+package uk.ac.mdx.cs.ie.workstress.utility;
 
 /**
-* Service Interface for the Stress Service
+* Parcelable WorkstressUser Object
 *
 * @author Dean Kramer <d.kramer@mdx.ac.uk>
 */
 
-interface IStressService {
-
-    boolean sendReport(in StressReport report);
-    boolean setUser(int userid);
-    boolean startHeartMonitor();
-    boolean stopHeartMonitor();
-    boolean isCollecting();
-    void dismissNotification();
-    List getAllUsers();
-}
+parcelable WorkstressUser;

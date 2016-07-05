@@ -28,6 +28,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.util.List;
+
 import uk.ac.mdx.cs.ie.workstress.R;
 import uk.ac.mdx.cs.ie.workstress.ui.MainActivity;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
@@ -84,8 +86,8 @@ public class StressService extends Service {
         }
 
         @Override
-        public boolean setUsername(String username) throws RemoteException {
-            mCollector.setUsername(username);
+        public boolean setUser(int user) throws RemoteException {
+            mCollector.setUser(user);
             return true;
         }
 
@@ -107,6 +109,11 @@ public class StressService extends Service {
         @Override
         public void dismissNotification() throws RemoteException {
             dismissReportNotification();
+        }
+
+        @Override
+        public List getAllUsers() throws RemoteException {
+            return mCollector.getAllUsers();
         }
 
     };
