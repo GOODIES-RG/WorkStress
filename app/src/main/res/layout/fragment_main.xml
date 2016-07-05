@@ -21,7 +21,6 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/question1"
             android:id="@+id/txtQuestion1"
-            android:layout_below="@+id/btnTime"
             android:layout_alignParentStart="true" />
 
         <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
