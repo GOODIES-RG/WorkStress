@@ -26,6 +26,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import uk.ac.mdx.cs.ie.workstress.R;
 import uk.ac.mdx.cs.ie.workstress.ui.MainActivity;
@@ -44,6 +45,9 @@ public class StressService extends Service {
     private boolean mCollecting = false;
     private DataCollector mCollector;
     private NotificationManager mNotificationManager;
+    public static final String BROADCAST_INTENT = "uk.ac.mdx.cs.ie.NEED_REPORT";
+    public static final String BROADCAST_NEEDED = "needed";
+    public static final String LOG_TAG = "StressService";
 
 
     @Override
@@ -73,7 +77,9 @@ public class StressService extends Service {
     public final IStressService.Stub mStressServiceBinder = new IStressService.Stub() {
 
         @Override
-        public boolean sendReport(String user, StressReport report) throws RemoteException {
+        public boolean sendReport(StressReport report) throws RemoteException {
+
+            mCollector.submitReport(report);
             return false;
         }
 
@@ -96,6 +102,11 @@ public class StressService extends Service {
         @Override
         public boolean isCollecting() throws RemoteException {
             return StressService.this.isCollecting();
+        }
+
+        @Override
+        public void dismissNotification() throws RemoteException {
+            dismissReportNotification();
         }
 
     };
@@ -139,14 +150,26 @@ public class StressService extends Service {
         builder.setContentText(getText(R.string.reportneededtext));
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setContentIntent(resultPendingIntent);
-        builder.setSound(alarmSound);
+        //builder.setSound(alarmSound);
         builder.setLights(Color.BLUE, 500, 500);
-        builder.setVibrate(new long[]{500, 500, 500, 500, 500});
+        //builder.setVibrate(new long[]{500, 500, 500, 500, 500});
         builder.setAutoCancel(true);
 
         mNotificationManager.notify(2, builder.build());
 
 
+    }
+
+    public void reportNeededBroadcast(boolean needed) {
+
+        Intent intent = new Intent();
+        try {
+            intent.setAction(BROADCAST_INTENT);
+            intent.putExtra(BROADCAST_NEEDED, needed);
+            mContext.sendBroadcast(intent);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
     }
 
     public void dismissReportNotification() {

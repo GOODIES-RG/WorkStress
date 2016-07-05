@@ -49,6 +49,7 @@ public class DataCollector {
     private Timer mReportTimer;
     private int mReportTimerCounter = 0;
     private boolean mAwaitingReport = false;
+    private int mReportID = 0;
 
     public DataCollector(Context context, StressService service) {
         mContext = context;
@@ -99,9 +100,11 @@ public class DataCollector {
 
     public void needReport(int reportID) {
         if (!mAwaitingReport) {
+            mAwaitingReport = true;
             SharedPreferences.Editor editor = mSettings.edit();
             editor.putInt("reportid", reportID);
             editor.commit();
+            mReportID = reportID;
 
             mReportTimer = new Timer();
             mReportTimer.scheduleAtFixedRate(new TimerTask() {
@@ -119,10 +122,12 @@ public class DataCollector {
             }, REPORT_INTERVAL, REPORT_INTERVAL);
 
             mService.showReportNotification();
+            mService.reportNeededBroadcast(true);
         }
     }
 
     private void outOfTime() {
+        mAwaitingReport = false;
         mUploader.ranOutOfTime(mUserID);
         mReportTimerCounter = 0;
         mReportTimer.cancel();
@@ -131,6 +136,8 @@ public class DataCollector {
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt("reportid", 0);
         editor.commit();
+        mReportID = 0;
+        mService.reportNeededBroadcast(false);
     }
 
     public void newUserId(Integer userid) {
@@ -141,7 +148,7 @@ public class DataCollector {
     }
 
     public boolean submitReport(StressReport report) {
-        mUploader.uploadReport(mUserID, mSettings.getInt("reportid", 0), report);
+        mUploader.uploadReport(mUserID, mReportID, report);
         return true;
     }
 
@@ -196,11 +203,24 @@ public class DataCollector {
         mUploadTimestamps.clear();
     }
 
-    public void sendReport() {
-
-    }
-
     public void onDestroy() {
         outOfTime();
+    }
+
+    public void submittedReport() {
+        mAwaitingReport = false;
+        mReportTimerCounter = 0;
+
+        if (mReportTimer != null) {
+            mReportTimer.cancel();
+        }
+
+        mService.dismissReportNotification();
+
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putInt("reportid", 0);
+        editor.commit();
+        mReportID = 0;
+        mService.reportNeededBroadcast(false);
     }
 }

@@ -13,9 +13,11 @@ limitations under the License.
 package uk.ac.mdx.cs.ie.workstress.ui;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -38,6 +40,7 @@ import java.util.TimerTask;
 
 import uk.ac.mdx.cs.ie.workstress.R;
 import uk.ac.mdx.cs.ie.workstress.service.IStressService;
+import uk.ac.mdx.cs.ie.workstress.service.StressService;
 import uk.ac.mdx.cs.ie.workstress.utility.DialogReturnInterface;
 import uk.ac.mdx.cs.ie.workstress.utility.ExplicitIntentGenerator;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private boolean mBound = false;
     private static final String STRESS_PREFS = "StressPrefs";
     private static final String USER_PREF = "username";
-    private static final String REPORT_PREF = "report";
+    private static final String REPORT_PREF = "reportid";
     private String mUser;
     private SharedPreferences mSettings;
     private FragmentManager mFragManager;
@@ -65,32 +68,87 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private int mReportNumber = 0;
     private Menu mMenu;
     private boolean mNoDoze = true;
+    private Toolbar mToolbar;
+    private boolean mJustStarted = false;
+    private BroadcastReceiver mBReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
+        bindToService();
 
         mSettings = mContext.getSharedPreferences(STRESS_PREFS, 0);
         mUser = mSettings.getString(USER_PREF, "");
+
         mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
         if (mReportNumber > 0) {
             mReportNeeded = true;
         }
 
+        setupUI();
+
+        mJustStarted = true;
+
+        mBReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean needed = intent.getExtras().getBoolean(StressService.BROADCAST_NEEDED, false);
+
+                if (needed != mReportNeeded) {
+                    switchToReport(needed);
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter(StressService.BROADCAST_INTENT);
+        registerReceiver(mBReceiver, filter);
+
+    }
+
+    private void switchToReport(boolean toReport) {
+
+        if (true) {
+            mReportNeeded = true;
+            mReportNumber = mSettings.getInt(REPORT_PREF, 0);
+            mFabButton.setVisibility(View.VISIBLE);
+        } else {
+            mReportNeeded = true;
+            mReportNumber = mSettings.getInt(REPORT_PREF, 0);
+            mFabButton.setVisibility(View.INVISIBLE);
+        }
+
+        try {
+            mStressService.dismissNotification();
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, e.getMessage().toString());
+        }
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Intent i = new Intent(mContext, MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+
+            }
+        });
+    }
+
+    private void setupUI() {
         setContentView(R.layout.activity_main);
 
         mFragManager = getSupportFragmentManager();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mFabButton = (FloatingActionButton) findViewById(R.id.fab);
 
         if (mReportNeeded) {
-            toolbar.setTitle(R.string.newreport);
+            mToolbar.setTitle(R.string.newreport);
             mFabButton.setVisibility(View.VISIBLE);
         }
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
 
 
         if (mFabButton != null) {
@@ -123,7 +181,9 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
                                 @Override
                                 public void run() {
                                     try {
-                                        mStressService.sendReport(mUser, data);
+                                        mStressService.sendReport(data);
+
+                                        switchToReport(false);
                                     } catch (RemoteException e) {
                                         e.printStackTrace();
                                     }
@@ -153,10 +213,6 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
             }
 
         }
-
-
-
-        bindToService();
     }
 
     private void bindToService() {
@@ -201,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(mBReceiver);
         unBindFromService();
     }
 
@@ -295,6 +352,37 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     public void doNeutralButtonClick(Object... para) {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        try {
+            if (mStressService.isCollecting()) {
+                Snackbar.make(mFabButton, getText(R.string.cannotback), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            } else {
+                super.onBackPressed();
+            }
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, e.getMessage().toString());
+        }
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mReportNumber = mSettings.getInt(REPORT_PREF, 0);
+
+        if ((mReportNumber > 0) && (mReportNeeded)) {
+            if (mJustStarted) {
+                mJustStarted = false;
+            } else {
+                switchToReport(true);
+            }
+        }
     }
 
 }

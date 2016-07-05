@@ -22,6 +22,7 @@
     <string name="reportneededtext">Please complete the report</string>
     <string name="batteryignore">Please enable ignore battery optimisation for this app</string>
     <string name="needbatteryignore">Cannot start until battery optimisation for this app is ignored</string>
+    <string name="cannotback">Cannot exit while heartrate is being collected</string>
 
     <!-- Questions -->
     <string name="question1">I am confident I will complete the task</string>
