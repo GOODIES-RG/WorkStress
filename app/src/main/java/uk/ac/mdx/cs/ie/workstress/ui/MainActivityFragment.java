@@ -20,9 +20,6 @@ import android.view.ViewGroup;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 import uk.ac.mdx.cs.ie.workstress.R;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 
@@ -42,8 +39,6 @@ public class MainActivityFragment extends Fragment implements DiscreteSeekBar.On
     private DiscreteSeekBar mSbAnswer6;
     private DiscreteSeekBar mSbAnswer7;
     private DiscreteSeekBar mSbAnswer8;
-    private static final SimpleDateFormat mDateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-    private final Calendar mCurrentDate = Calendar.getInstance();
     private StressReport mReport;
 
     public MainActivityFragment() {
@@ -65,25 +60,25 @@ public class MainActivityFragment extends Fragment implements DiscreteSeekBar.On
         mSbAnswer1 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
         mSbAnswer1.setOnProgressChangeListener(this);
 
-        mSbAnswer2 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer2 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq2);
         mSbAnswer2.setOnProgressChangeListener(this);
 
-        mSbAnswer3 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer3 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq3);
         mSbAnswer3.setOnProgressChangeListener(this);
 
-        mSbAnswer4 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer4 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq4);
         mSbAnswer4.setOnProgressChangeListener(this);
 
-        mSbAnswer5 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer5 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq5);
         mSbAnswer5.setOnProgressChangeListener(this);
 
-        mSbAnswer6 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer6 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq6);
         mSbAnswer6.setOnProgressChangeListener(this);
 
-        mSbAnswer7 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer7 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq7);
         mSbAnswer7.setOnProgressChangeListener(this);
 
-        mSbAnswer8 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
+        mSbAnswer8 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq8);
         mSbAnswer8.setOnProgressChangeListener(this);
     }
 
