@@ -81,7 +81,6 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
 
         mBluetoothDevices.add(device);
         notifyDataSetChanged();
-        //notifyItemInserted(mBluetoothDevices.indexOf(device));
     }
 
     public static class DeviceViewHolder extends RecyclerView.ViewHolder
