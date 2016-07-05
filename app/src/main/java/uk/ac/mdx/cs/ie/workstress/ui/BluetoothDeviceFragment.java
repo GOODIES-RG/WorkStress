@@ -57,7 +57,7 @@ public class BluetoothDeviceFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mActivity = (BluetoothDeviceActivity) getActivity();
-        ((BluetoothDeviceAdapter) mAdapter).setOnItemClickListener(new BluetoothDeviceAdapter.DeviceClickListener() {
+        mAdapter.setOnItemClickListener(new BluetoothDeviceAdapter.DeviceClickListener() {
             @Override
             public void onItemClick(int position, View v) {
                 BluetoothDevice device = mDevices.get(position);
