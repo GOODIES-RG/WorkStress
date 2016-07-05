@@ -46,9 +46,7 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.device_card_layout, parent, false);
 
-        DeviceViewHolder deviceViewHolder = new DeviceViewHolder(view);
-
-        return deviceViewHolder;
+        return new DeviceViewHolder(view);
     }
 
     @Override
@@ -110,6 +108,6 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
     }
 
     public interface DeviceClickListener {
-        public void onItemClick(int position, View v);
+        void onItemClick(int position, View v);
     }
 }
