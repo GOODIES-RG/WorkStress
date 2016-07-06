@@ -191,14 +191,23 @@ public class DataUploader {
                     @Override
                     public void onResponse(long id, Object result) {
 
-                        Integer status = (Integer) result;
+                        Integer status = -1;
+                        Integer date = 0;
+
+                        if (result instanceof Object[]) {
+                            Object[] results = (Object[]) result;
+                            status = (Integer) results[0];
+                            date = (Integer) results[1];
+                        } else {
+                            Log.e(LOG_TAG, "Error: " + result);
+                        }
 
                         if (status > -1) {
                             mCollector.uploadComplete();
                         }
 
                         if (status > 0) {
-                            mCollector.needReport(status);
+                            mCollector.needReport(status, date);
                         }
 
                     }
