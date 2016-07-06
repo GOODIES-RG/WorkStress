@@ -14,6 +14,7 @@ package uk.ac.mdx.cs.ie.workstress.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +49,10 @@ public class DataCollector {
     private HeartRateMonitor mHeartrateMonitor;
     private StressService mService;
     private Timer mReportTimer;
-    private int mReportTimerCounter = 0;
+    private int mReportDueTime;
     private boolean mAwaitingReport = false;
     private int mReportID = 0;
+    private static final String LOG_TAG = "DataCollector";
 
     public DataCollector(Context context, StressService service) {
         mContext = context;
@@ -98,31 +100,41 @@ public class DataCollector {
         mUserID = user;
     }
 
-    public void needReport(int reportID) {
+    public void needReport(int reportID, int date) {
         if (!mAwaitingReport) {
             mAwaitingReport = true;
-            SharedPreferences.Editor editor = mSettings.edit();
-            editor.putInt("reportid", reportID);
-            editor.commit();
-            mReportID = reportID;
 
-            mReportTimer = new Timer();
-            mReportTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
+            mReportDueTime = date + 3600;
+            long current = System.currentTimeMillis() / 1000L;
 
-                    if (mReportTimerCounter < 5) {
-                        mService.dismissReportNotification();
-                        mService.showReportNotification();
-                        mReportTimerCounter++;
-                    } else {
-                        outOfTime();
+            if (mReportDueTime > current) {
+                SharedPreferences.Editor editor = mSettings.edit();
+                editor.putInt("reportid", reportID);
+                editor.putInt("reportstime", date);
+                editor.commit();
+                mReportID = reportID;
+
+                mReportTimer = new Timer();
+                mReportTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+
+                        long current = System.currentTimeMillis() / 1000L;
+
+                        if (current < mReportDueTime) {
+                            mService.dismissReportNotification();
+                            mService.showReportNotification();
+                        } else {
+                            outOfTime();
+                        }
                     }
-                }
-            }, REPORT_INTERVAL, REPORT_INTERVAL);
+                }, REPORT_INTERVAL, REPORT_INTERVAL);
 
-            mService.showReportNotification();
-            mService.reportNeededBroadcast(true);
+                mService.showReportNotification();
+                mService.reportNeededBroadcast(true);
+            } else {
+                outOfTime();
+            }
         }
     }
 
@@ -130,12 +142,13 @@ public class DataCollector {
         if (mAwaitingReport) {
             mAwaitingReport = false;
             mUploader.ranOutOfTime(mUserID);
-            mReportTimerCounter = 0;
+            mReportDueTime = 0;
             mReportTimer.cancel();
             mService.dismissReportNotification();
 
             SharedPreferences.Editor editor = mSettings.edit();
             editor.putInt("reportid", 0);
+            editor.putInt("reportstime", 0);
             editor.commit();
             mReportID = 0;
             mService.reportNeededBroadcast(false);
@@ -183,7 +196,7 @@ public class DataCollector {
     private void uploadLog() {
 
         copyLog();
-
+        Log.v(LOG_TAG, "Uploading " + mUploadHeartrates.size());
         mUploader.uploadHeartBeats(mUserID, mUploadHeartrates, mUploadTimestamps);
     }
 
@@ -206,7 +219,7 @@ public class DataCollector {
 
     public void submittedReport() {
         mAwaitingReport = false;
-        mReportTimerCounter = 0;
+        mReportDueTime = 0;
 
         if (mReportTimer != null) {
             mReportTimer.cancel();
@@ -216,6 +229,7 @@ public class DataCollector {
 
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt("reportid", 0);
+        editor.putInt("reportstime", 0);
         editor.commit();
         mReportID = 0;
         mService.reportNeededBroadcast(false);

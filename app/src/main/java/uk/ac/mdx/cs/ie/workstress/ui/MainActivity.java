@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private static final String STRESS_PREFS = "StressPrefs";
     private static final String USER_PREF = "userid";
     private static final String REPORT_PREF = "reportid";
+    private static final String REPORT_SUBMIT_TIME_PREF = "reportstime";
     private int mUser;
     private SharedPreferences mSettings;
     private FragmentManager mFragManager;
@@ -78,12 +79,17 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         bindToService();
 
         mSettings = mContext.getSharedPreferences(STRESS_PREFS, 0);
-        mUser = mSettings.getInt(USER_PREF, 0);
 
         mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
         if (mReportNumber > 0) {
-            mReportNeeded = true;
+            long current = System.currentTimeMillis() / 1000L;
+
+            int reportDue = mSettings.getInt(REPORT_SUBMIT_TIME_PREF, Integer.MAX_VALUE);
+
+            if (reportDue < current) {
+                mReportNeeded = true;
+            }
         }
 
         setupUI();
@@ -309,10 +315,12 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         if (mNoDoze) {
             try {
                 MenuItem changeUsername = mMenu.getItem(0);
+                MenuItem pairBluetooth = mMenu.getItem(2);
 
                 if (mStressService.isCollecting()) {
                     mStressService.stopHeartMonitor();
                     changeUsername.setEnabled(true);
+                    pairBluetooth.setEnabled(true);
                 } else {
                     if (mUser < 1) {
                         Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
@@ -320,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
                     } else {
                         mStressService.startHeartMonitor();
                         changeUsername.setEnabled(false);
+                        pairBluetooth.setEnabled(false);
                     }
                 }
 
@@ -381,6 +390,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     public void onResume() {
         super.onResume();
 
+        mUser = mSettings.getInt(USER_PREF, 0);
         mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
         if ((mReportNumber > 0) && (mReportNeeded)) {
