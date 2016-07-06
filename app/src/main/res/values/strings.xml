@@ -9,12 +9,14 @@
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
     <string name="password">Password</string>
+    <string name="incorrectpaw">Incorrect Password</string>
     <string name="servicecantbind">Cannot connect to service. Try again later</string>
     <string name="noreportneeded">No report currently required...</string>
     <string name="pair_device">Pair Heartrate Monitor</string>
     <string name="title_activity_pair_bluetooth_device">PairBluetoothDevice</string>
     <string name="rescan">Rescan</string>
     <string name="refresh">Refresh</string>
+    <string name="fix">fix</string>
     <string name="pairdevice">Pair Bluetooth Device</string>
     <string name="reportsubmitted">Report submitted</string>
     <string name="undo">Undo</string>

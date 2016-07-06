@@ -209,9 +209,11 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
                 mNoDoze = false;
                 Snackbar.make(mFabButton, getText(R.string.batteryignore), Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
             }
 
         }
+
     }
 
     private void bindToService() {
@@ -337,6 +339,12 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         if (password.equals("setusername")) {
             Intent intent = new Intent(this, UserSelectionActivity.class);
             startActivity(intent);
+        } else {
+            Snackbar.make(mFabButton, getText(R.string.incorrectpaw), Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+
+            TextDialogFragment userFragment = TextDialogFragment.newInstance(R.string.password);
+            userFragment.show(mFragManager, "userdialog");
         }
     }
 
