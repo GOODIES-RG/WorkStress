@@ -127,17 +127,19 @@ public class DataCollector {
     }
 
     private void outOfTime() {
-        mAwaitingReport = false;
-        mUploader.ranOutOfTime(mUserID);
-        mReportTimerCounter = 0;
-        mReportTimer.cancel();
-        mService.dismissReportNotification();
+        if (mAwaitingReport) {
+            mAwaitingReport = false;
+            mUploader.ranOutOfTime(mUserID);
+            mReportTimerCounter = 0;
+            mReportTimer.cancel();
+            mService.dismissReportNotification();
 
-        SharedPreferences.Editor editor = mSettings.edit();
-        editor.putInt("reportid", 0);
-        editor.commit();
-        mReportID = 0;
-        mService.reportNeededBroadcast(false);
+            SharedPreferences.Editor editor = mSettings.edit();
+            editor.putInt("reportid", 0);
+            editor.commit();
+            mReportID = 0;
+            mService.reportNeededBroadcast(false);
+        }
     }
 
     public boolean submitReport(StressReport report) {
@@ -170,10 +172,12 @@ public class DataCollector {
     }
 
     public void stopCollection() {
-        mHeartrateMonitor.stop();
-        mCollecting = false;
-        mTimer.cancel();
-        uploadLog();
+        if (mCollecting) {
+            mHeartrateMonitor.stop();
+            mCollecting = false;
+            mTimer.cancel();
+            uploadLog();
+        }
     }
 
     private void uploadLog() {

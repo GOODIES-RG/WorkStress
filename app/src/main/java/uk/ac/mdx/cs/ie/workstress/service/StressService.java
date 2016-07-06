@@ -184,10 +184,13 @@ public class StressService extends Service {
     }
 
     public boolean stopHeartMonitor() {
-        stopForeground(true);
-        mCollector.stopCollection();
-        mCollecting = false;
-        mWakeLock.release();
+        if (mCollecting) {
+            stopForeground(true);
+            mCollector.stopCollection();
+            mCollecting = false;
+            mWakeLock.release();
+        }
+
         return true;
     }
 
