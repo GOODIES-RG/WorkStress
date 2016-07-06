@@ -65,6 +65,10 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
         }
     }
 
+    public void setIsEmpty(boolean isEmpty) {
+        mIsEmpty = isEmpty;
+    }
+
     @Override
     public int getItemCount() {
         return mBluetoothDevices.size();

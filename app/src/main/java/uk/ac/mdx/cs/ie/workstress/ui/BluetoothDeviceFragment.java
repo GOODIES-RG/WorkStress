@@ -101,16 +101,19 @@ public class BluetoothDeviceFragment extends Fragment {
     }
 
     public void foundDevice(final BluetoothDevice device) {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAdapter.addItem(device);
-            }
-        });
 
+        if (!mDevices.contains(device)) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.addItem(device);
+                }
+            });
+        }
     }
 
     public void clearDevices() {
+        mAdapter.setIsEmpty(true);
         mDevices.clear();
         mDevices = getDevices(mDevices);
         mAdapter.notifyDataSetChanged();
