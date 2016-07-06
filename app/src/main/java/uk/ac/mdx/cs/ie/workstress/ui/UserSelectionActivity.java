@@ -35,6 +35,7 @@ import java.util.List;
 import uk.ac.mdx.cs.ie.workstress.R;
 import uk.ac.mdx.cs.ie.workstress.service.IStressService;
 import uk.ac.mdx.cs.ie.workstress.utility.ExplicitIntentGenerator;
+import uk.ac.mdx.cs.ie.workstress.utility.WorkstressUser;
 
 /**
  * User Selection Activity
@@ -52,11 +53,15 @@ public class UserSelectionActivity extends AppCompatActivity {
     private Context mContext;
     private Toolbar mToolbar;
     private int mUser = 0;
+    private static final String STRESS_PREFS = "StressPrefs";
+    private static final String USER_PREF = "userid";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
+        mSettings = mContext.getSharedPreferences(STRESS_PREFS, 0);
+        mUser = mSettings.getInt(USER_PREF, 0);
         mFragManager = getSupportFragmentManager();
         setContentView(R.layout.activity_user);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -91,6 +96,14 @@ public class UserSelectionActivity extends AppCompatActivity {
     public void setUser(int user) {
         mUser = user;
 
+        if (mStressService != null) {
+            try {
+                mStressService.setUser(user);
+            } catch (RemoteException e) {
+                Log.e(LOG_TAG, e.getMessage().toString());
+            }
+        }
+
     }
 
     public void getUsers() {
@@ -100,6 +113,12 @@ public class UserSelectionActivity extends AppCompatActivity {
         try {
             users = mStressService.getAllUsers();
             Collections.sort(users);
+
+            if (mUser > 0) {
+                WorkstressUser user = (WorkstressUser) users.get(mUser - 1);
+                user.checked = true;
+            }
+
         } catch (RemoteException e) {
             Log.e(LOG_TAG, e.getMessage().toString());
         }
