@@ -185,10 +185,13 @@ public abstract class BluetoothLEDevice extends ContextObserver {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 Log.v(LOG_TAG, "Connected to device");
+                connectionChange(true);
                 gatt.discoverServices();
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.v(LOG_TAG, "Disconnected from device, " +
                         "will attempt to reconnect if observer running");
+                connectionChange(false);
 
                 if (mIsRunning) {
                     gatt.connect();
@@ -235,4 +238,6 @@ public abstract class BluetoothLEDevice extends ContextObserver {
     };
 
     public abstract void checkContext(BluetoothGattCharacteristic characteristic);
+
+    public abstract void connectionChange(boolean connected);
 }

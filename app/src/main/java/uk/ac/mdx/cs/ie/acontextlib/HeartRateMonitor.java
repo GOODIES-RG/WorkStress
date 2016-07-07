@@ -49,4 +49,9 @@ public class HeartRateMonitor extends BluetoothLEDevice {
 
         mReceiver.newContextValue("sensor.heartrate", heartRate);
     }
+
+    @Override
+    public void connectionChange(boolean connected) {
+        mReceiver.newContextValue("sensor.heartrate.connected", connected);
+    }
 }
