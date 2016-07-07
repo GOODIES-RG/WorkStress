@@ -74,7 +74,11 @@ public class DataCollector {
 
             @Override
             public void newContextValue(String name, boolean value) {
-
+                if (value == false) {
+                    mService.showConnectionTroubleNotification();
+                } else {
+                    mService.dismissConnectionNotification();
+                }
             }
 
             @Override

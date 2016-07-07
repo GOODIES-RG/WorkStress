@@ -50,6 +50,7 @@ public class StressService extends Service {
     public static final String BROADCAST_INTENT = "uk.ac.mdx.cs.ie.NEED_REPORT";
     public static final String BROADCAST_NEEDED = "needed";
     public static final String LOG_TAG = "StressService";
+    private boolean mConTroubles = false;
 
 
     @Override
@@ -157,14 +158,42 @@ public class StressService extends Service {
         builder.setContentText(getText(R.string.reportneededtext));
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setContentIntent(resultPendingIntent);
-        //builder.setSound(alarmSound);
+        builder.setSound(alarmSound);
         builder.setLights(Color.BLUE, 500, 500);
-        //builder.setVibrate(new long[]{500, 500, 500, 500, 500});
+        builder.setVibrate(new long[]{500, 500, 500, 500, 500});
         builder.setAutoCancel(true);
 
         mNotificationManager.notify(2, builder.build());
 
 
+    }
+
+    public void showConnectionTroubleNotification() {
+
+        if (!mConTroubles) {
+            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+            Intent resultIntent = new Intent(mContext, MainActivity.class);
+            PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, resultIntent, 0);
+
+            Notification.Builder builder = new Notification.Builder(mContext);
+            builder.setContentTitle(getText(R.string.controuble));
+            builder.setContentText(getText(R.string.disconnected));
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setContentIntent(resultPendingIntent);
+            builder.setSound(alarmSound);
+            builder.setLights(Color.BLUE, 500, 500);
+            builder.setVibrate(new long[]{500, 500, 500, 500, 500});
+            builder.setAutoCancel(false);
+
+            mNotificationManager.notify(3, builder.build());
+            mConTroubles = true;
+        }
+    }
+
+    public void dismissConnectionNotification() {
+        mNotificationManager.cancel(3);
+        mConTroubles = false;
     }
 
     public void reportNeededBroadcast(boolean needed) {
