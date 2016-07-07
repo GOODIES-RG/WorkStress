@@ -143,7 +143,9 @@ public class DataCollector {
             mAwaitingReport = false;
             mUploader.ranOutOfTime(mUserID);
             mReportDueTime = 0;
-            mReportTimer.cancel();
+            if (mReportTimer != null) {
+                mReportTimer.cancel();
+            }
             mService.dismissReportNotification();
 
             SharedPreferences.Editor editor = mSettings.edit();
