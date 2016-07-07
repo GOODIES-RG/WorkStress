@@ -115,7 +115,10 @@ public abstract class BluetoothLEDevice extends ContextObserver {
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
 
                     if (mBluetoothGatt == null && mConnectRetry) {
+                        connectionChange(false);
                         scanForLeDevice(enable);
+                    } else {
+                        connectionChange(true);
                     }
 
                 }
@@ -159,6 +162,8 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         if (mBluetoothGatt == null) {
             return false;
         }
+
+        scanForLeDevice(false);
 
         mIsRunning = false;
 
