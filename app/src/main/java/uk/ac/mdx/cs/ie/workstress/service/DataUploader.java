@@ -142,8 +142,8 @@ public class DataUploader {
                 try {
                     ArrayList params = new ArrayList();
                     params.add(API_KEY);
-                    params.add(user);
                     params.add(reportNumber);
+                    params.add(user);
                     params.add(report.date);
                     params.add(report.question1);
                     params.add(report.question2);

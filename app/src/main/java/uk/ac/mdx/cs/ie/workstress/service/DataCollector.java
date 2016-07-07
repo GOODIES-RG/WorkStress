@@ -61,6 +61,7 @@ public class DataCollector {
         mUploader = new DataUploader(this);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
+        mReportID = mSettings.getInt("reportid", 0);
         mHeartrateMonitor = new HeartRateMonitor(mContext, new ContextReceiver() {
             @Override
             public void newContextValue(String name, long value) {
