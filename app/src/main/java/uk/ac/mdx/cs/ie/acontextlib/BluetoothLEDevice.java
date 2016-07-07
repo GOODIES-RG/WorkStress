@@ -25,6 +25,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
     private ArrayList<UUID> mInterestedMeasurements;
     private String mDeviceID;
     private UUID mPhoneID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
+    private static final String LOG_TAG = "BluetoothLEDevice";
 
     public BluetoothLEDevice(Context c, ContextReceiver cr) {
 
@@ -125,6 +127,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         }
 
         scanForLeDevice(true);
+        mIsRunning = true;
 
         return true;
     }
@@ -132,26 +135,13 @@ public abstract class BluetoothLEDevice extends ContextObserver {
     @Override
     public boolean pause() {
 
-        if (mBluetoothGatt == null) {
-            return false;
-        }
-
-        mBluetoothGatt.close();
-        mBluetoothGatt = null;
-
-        return true;
+        return stop();
     }
 
     @Override
     public boolean resume() {
 
-        if (!mBluetoothAdapter.isEnabled() || mDeviceID.isEmpty()) {
-            return false;
-        }
-
-        scanForLeDevice(true);
-
-        return true;
+        return start();
     }
 
     @Override
@@ -160,6 +150,8 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         if (mBluetoothGatt == null) {
             return false;
         }
+
+        mIsRunning = false;
 
         mBluetoothGatt.close();
         mBluetoothGatt = null;
@@ -183,7 +175,15 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.v(LOG_TAG, "Connected to device");
                 gatt.discoverServices();
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.v(LOG_TAG, "Disconnected from device, " +
+                        "will attempt to reconnect if observer running");
+
+                if (mIsRunning) {
+                    gatt.connect();
+                }
             }
         }
 
