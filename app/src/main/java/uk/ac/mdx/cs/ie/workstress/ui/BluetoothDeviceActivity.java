@@ -132,6 +132,7 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
                     final uk.ac.mdx.cs.ie.workstress.utility.BluetoothDevice bluetoothDevice = new uk.ac.mdx.cs.ie.workstress.utility.BluetoothDevice();
                     bluetoothDevice.name = device.getName();
                     bluetoothDevice.macaddress = device.getAddress();
+                    bluetoothDevice.rssi = rssi;
 
                     if (bluetoothDevice.macaddress.equalsIgnoreCase(mPairedDevice)) {
                         bluetoothDevice.checked = true;

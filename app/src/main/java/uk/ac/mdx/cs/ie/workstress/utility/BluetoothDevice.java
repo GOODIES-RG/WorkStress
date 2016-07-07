@@ -19,10 +19,11 @@ import java.io.Serializable;
  *
  * @author Dean Kramer <d.kramer@mdx.ac.uk>
  */
-public class BluetoothDevice implements Serializable {
+public class BluetoothDevice implements Serializable, Comparable<BluetoothDevice> {
 
     public String name;
     public String macaddress;
+    public int rssi;
     public boolean checked;
     public static final String MAC_PREFIX = "MAC address: ";
 
@@ -36,5 +37,10 @@ public class BluetoothDevice implements Serializable {
         }
 
         return result;
+    }
+
+    @Override
+    public int compareTo(BluetoothDevice another) {
+        return another.rssi - rssi;
     }
 }

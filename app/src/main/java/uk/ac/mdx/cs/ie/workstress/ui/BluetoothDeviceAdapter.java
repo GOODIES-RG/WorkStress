@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import uk.ac.mdx.cs.ie.workstress.R;
@@ -56,7 +57,7 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
         holder.mName.setText(device.name);
 
         if (!mIsEmpty) {
-            holder.mMac.setText(device.macaddress);
+            holder.mMac.setText(device.macaddress + " rssi: " + device.rssi);
             if (device.checked) {
                 holder.mChecked.setVisibility(View.VISIBLE);
             } else {
@@ -82,6 +83,16 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
         }
 
         mBluetoothDevices.add(device);
+        Collections.sort(mBluetoothDevices);
+        notifyDataSetChanged();
+    }
+
+    public void alterItem(BluetoothDevice device) {
+
+        int i = mBluetoothDevices.indexOf(device);
+        BluetoothDevice d = mBluetoothDevices.get(i);
+        d.rssi = device.rssi;
+        Collections.sort(mBluetoothDevices);
         notifyDataSetChanged();
     }
 

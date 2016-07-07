@@ -109,6 +109,13 @@ public class BluetoothDeviceFragment extends Fragment {
                     mAdapter.addItem(device);
                 }
             });
+        } else {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.alterItem(device);
+                }
+            });
         }
     }
 
