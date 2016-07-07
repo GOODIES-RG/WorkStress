@@ -171,8 +171,11 @@ public class DataCollector {
 
         String device = mSettings.getString("macaddress", "");
 
-        mHeartrateMonitor.setDeviceID(device);
-        mHeartrateMonitor.start();
+        if (!device.equals("")) {
+            mHeartrateMonitor.setDeviceID(device);
+            mHeartrateMonitor.setConnectRetry(true);
+            mHeartrateMonitor.start();
+        }
 
         mCollecting = true;
 

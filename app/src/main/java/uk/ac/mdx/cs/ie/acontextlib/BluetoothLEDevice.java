@@ -49,6 +49,7 @@ public abstract class BluetoothLEDevice extends ContextObserver {
     private String mDeviceID;
     private UUID mPhoneID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     private static final String LOG_TAG = "BluetoothLEDevice";
+    private boolean mConnectRetry = false;
 
     public BluetoothLEDevice(Context c, ContextReceiver cr) {
 
@@ -96,6 +97,10 @@ public abstract class BluetoothLEDevice extends ContextObserver {
         }
     }
 
+    public void setConnectRetry(boolean retry) {
+        mConnectRetry = retry;
+    }
+
     public void setDeviceID(String device) {
         mDeviceID = device;
     }
@@ -108,6 +113,10 @@ public abstract class BluetoothLEDevice extends ContextObserver {
                 public void run() {
                     mScanning = false;
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
+
+                    if (mBluetoothGatt == null && mConnectRetry) {
+                        scanForLeDevice(enable);
+                    }
 
                 }
             }, SCAN_PERIOD);
