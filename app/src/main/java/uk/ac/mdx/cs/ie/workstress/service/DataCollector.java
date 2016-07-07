@@ -53,6 +53,7 @@ public class DataCollector {
     private boolean mAwaitingReport = false;
     private int mReportID = 0;
     private static final String LOG_TAG = "DataCollector";
+    private long mLastHeartTime = 0;
 
     public DataCollector(Context context, StressService service) {
         mContext = context;
@@ -163,8 +164,14 @@ public class DataCollector {
     }
 
     private synchronized void log(int heartrate) {
-        mHeartrates.add(heartrate);
-        mTimestamps.add(System.currentTimeMillis() / 1000L);
+
+        long time = System.currentTimeMillis() / 1000L;
+
+        if (time > mLastHeartTime) {
+            mHeartrates.add(heartrate);
+            mTimestamps.add(time);
+            mLastHeartTime = time;
+        }
     }
 
     public void startCollecting() {
