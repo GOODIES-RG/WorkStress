@@ -84,10 +84,11 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
         if (mReportNumber > 0) {
             long current = System.currentTimeMillis() / 1000L;
+            current += 3600;
 
             int reportDue = mSettings.getInt(REPORT_SUBMIT_TIME_PREF, Integer.MAX_VALUE);
 
-            if (reportDue < current) {
+            if (reportDue > current) {
                 mReportNeeded = true;
             }
         }
