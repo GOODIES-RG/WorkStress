@@ -100,20 +100,6 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
         mJustStarted = true;
 
-        mBReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                boolean needed = intent.getExtras().getBoolean(StressService.BROADCAST_NEEDED, false);
-
-                if (needed != mReportNeeded) {
-                    switchToReport(needed);
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter(StressService.BROADCAST_INTENT);
-        registerReceiver(mBReceiver, filter);
-
     }
 
     private void switchToReport(boolean toReport) {
@@ -128,10 +114,12 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
             mFabButton.setVisibility(View.INVISIBLE);
         }
 
-        try {
-            mStressService.dismissNotification();
-        } catch (RemoteException e) {
-            Log.e(LOG_TAG, e.getMessage().toString());
+        if (mStressService != null) {
+            try {
+                mStressService.dismissNotification();
+            } catch (RemoteException e) {
+                Log.e(LOG_TAG, e.getMessage().toString());
+            }
         }
 
         runOnUiThread(new Runnable() {
@@ -268,8 +256,13 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBReceiver);
         unBindFromService();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mBReceiver);
     }
 
     @Override
@@ -404,6 +397,20 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
                 switchToReport(true);
             }
         }
+
+        mBReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                boolean needed = intent.getExtras().getBoolean(StressService.BROADCAST_NEEDED, false);
+
+                if (needed != mReportNeeded) {
+                    switchToReport(needed);
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter(StressService.BROADCAST_INTENT);
+        registerReceiver(mBReceiver, filter);
     }
 
 }
