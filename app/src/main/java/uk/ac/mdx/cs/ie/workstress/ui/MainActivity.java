@@ -309,32 +309,32 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     private void startStopMonitor() {
 
-        if (mNoDoze) {
-            try {
-                MenuItem changeUsername = mMenu.getItem(0);
-                MenuItem pairBluetooth = mMenu.getItem(2);
-
-                if (mStressService.isCollecting()) {
-                    mStressService.stopHeartMonitor();
-                    changeUsername.setEnabled(true);
-                    pairBluetooth.setEnabled(true);
-                } else {
-                    if (mUser < 1) {
-                        Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    } else {
-                        mStressService.startHeartMonitor();
-                        changeUsername.setEnabled(false);
-                        pairBluetooth.setEnabled(false);
-                    }
-                }
-
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        } else {
+        if (!mNoDoze) {
             Snackbar.make(mFabButton, getText(R.string.needbatteryignore), Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
+        }
+
+        try {
+            MenuItem changeUsername = mMenu.getItem(0);
+            MenuItem pairBluetooth = mMenu.getItem(2);
+
+            if (mStressService.isCollecting()) {
+                mStressService.stopHeartMonitor();
+                changeUsername.setEnabled(true);
+                pairBluetooth.setEnabled(true);
+            } else {
+                if (mUser < 1) {
+                    Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    mStressService.startHeartMonitor();
+                    changeUsername.setEnabled(false);
+                    pairBluetooth.setEnabled(false);
+                }
+            }
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 

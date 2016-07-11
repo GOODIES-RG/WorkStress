@@ -24,7 +24,7 @@
     <string name="reportneeded">New Report Needed</string>
     <string name="reportneededtext">Please complete the report</string>
     <string name="batteryignore">Please enable ignore battery optimisation for this app</string>
-    <string name="needbatteryignore">Cannot start until battery optimisation for this app is ignored</string>
+    <string name="needbatteryignore">Please enable ignore battery optimisation for this app</string>
     <string name="cannotback">Cannot exit while heartrate is being collected</string>
     <string name="disconnected">Paired device disconnected. Attempting to reconnect...</string>
     <string name="controuble">Connection Problem</string>
