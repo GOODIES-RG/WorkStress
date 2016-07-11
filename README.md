@@ -1,3 +1,3 @@
 # WorkStress
 
-WorkStress App for JSME Experiment
+WorkStress App for JMSE Experiment
