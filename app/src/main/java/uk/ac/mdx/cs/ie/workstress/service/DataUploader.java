@@ -13,6 +13,8 @@ limitations under the License.
 package uk.ac.mdx.cs.ie.workstress.service;
 
 
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import java.net.MalformedURLException;
@@ -39,7 +41,7 @@ public class DataUploader {
     //The RPC Server address
     private static final String SERVER_URL = "";
     private static final String API_KEY = "";
-    private static final String RPC_REPORT_FUNCTION = "workstress.newreport";
+    private static final String RPC_REPORT_FUNCTION = "workstress.newreports";
     private static final String RPC_HEARTBEAT_FUNCTION = "workstress.newheartbeats";
     private static final String RPC_OUTOFTIME_FUNCTION = "workstress.outoftime";
     private static final String RPC_GETALLUSERS_FUNCTION = "workstress.getallusers";
@@ -47,10 +49,13 @@ public class DataUploader {
     private XMLRPCClient mRPCClient;
     private static final String LOG_TAG = "DataUploader";
     private DataCollector mCollector;
+    private ConnectivityManager mConnectivityManager;
+    private Context mContext;
 
-    public DataUploader(DataCollector collector) {
-
+    public DataUploader(Context context, DataCollector collector) {
+        mContext = context;
         mCollector = collector;
+        mConnectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         try {
             mRPCClient = new XMLRPCClient(new URL(SERVER_URL));
@@ -132,7 +137,7 @@ public class DataUploader {
         return users;
     }
 
-    public boolean uploadReport(final Integer user, final Integer reportNumber, final StressReport report) {
+    public boolean uploadReports(final Integer user, final List<StressReport> reports) {
 
         final boolean[] success = {false};
 
@@ -140,23 +145,35 @@ public class DataUploader {
             @Override
             public void run() {
                 try {
+
+                    ArrayList reportArrays = new ArrayList();
+
+                    for (StressReport report : reports) {
+                        reportArrays.add(report.toArray());
+                    }
+
                     ArrayList params = new ArrayList();
                     params.add(API_KEY);
-                    params.add(reportNumber);
                     params.add(user);
-                    params.add(report.date);
-                    params.add(report.question1);
-                    params.add(report.question2);
-                    params.add(report.question3);
-                    params.add(report.question4);
-                    params.add(report.question5);
-                    params.add(report.question6);
-                    params.add(report.question7);
-                    params.add(report.question8);
+                    params.add(reportArrays);
 
-                    Object i = mRPCClient.call(RPC_REPORT_FUNCTION, params);
+                    mRPCClient.callAsync(new XMLRPCCallback() {
+                        @Override
+                        public void onResponse(long id, Object result) {
+                            mCollector.completeOutstandingReports();
+                        }
 
-                    mCollector.submittedReport();
+                        @Override
+                        public void onError(long id, XMLRPCException error) {
+                            Log.e(LOG_TAG, error.getMessage());
+                        }
+
+                        @Override
+                        public void onServerError(long id, XMLRPCServerException error) {
+                            Log.e(LOG_TAG, error.getMessage());
+                        }
+                    }, RPC_REPORT_FUNCTION, params);
+
 
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage().toString());
@@ -175,7 +192,7 @@ public class DataUploader {
         return true;
     }
 
-    public void uploadHeartBeats(final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
+    public void uploadHeartBeats(final boolean resend, final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
 
         new Thread(new Runnable() {
             @Override
@@ -203,19 +220,19 @@ public class DataUploader {
                         }
 
                         if (status > -1) {
-                            mCollector.uploadComplete();
+                            mCollector.completeOutstandingRates();
                         }
 
                         if (status > 0) {
                             mCollector.needReport(status, date);
                         }
 
-                    }
+                        }
 
                     @Override
                     public void onError(long id, XMLRPCException error) {
                         Log.e(LOG_TAG, error.getMessage());
-                    }
+                        }
 
                     @Override
                     public void onServerError(long id, XMLRPCServerException error) {

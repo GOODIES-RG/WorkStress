@@ -14,7 +14,7 @@ package uk.ac.mdx.cs.ie.workstress.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
+import android.os.Build;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,7 @@ import java.util.TimerTask;
 
 import uk.ac.mdx.cs.ie.acontextlib.ContextReceiver;
 import uk.ac.mdx.cs.ie.acontextlib.HeartRateMonitor;
+import uk.ac.mdx.cs.ie.workstress.db.WorkstressDB;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 
 /**
@@ -37,28 +38,33 @@ public class DataCollector {
     private DataUploader mUploader;
     private ArrayList<Integer> mHeartrates = new ArrayList<>(40);
     private ArrayList<Long> mTimestamps = new ArrayList<>(40);
-    private ArrayList<Integer> mUploadHeartrates = new ArrayList<>(40);
-    private ArrayList<Long> mUploadTimestamps = new ArrayList<>(40);
     private SharedPreferences mSettings;
     private Context mContext;
     private Timer mTimer;
     private boolean mCollecting = false;
     private static final int INTERVAL = 20000;
     private static final int REPORT_INTERVAL = 600000;
+    private static final int RESENT_INTERVAL = 300000;
     private int mUserID;
     private HeartRateMonitor mHeartrateMonitor;
     private StressService mService;
     private Timer mReportTimer;
+    private Timer mReportSendTimer;
+    private Timer mHeartrateSendTimer;
     private int mReportDueTime;
     private boolean mAwaitingReport = false;
     private int mReportID = 0;
     private static final String LOG_TAG = "DataCollector";
     private long mLastHeartTime = 0;
+    private WorkstressDB mDatabase;
+    private Object mLogLock = new Object();
+
 
     public DataCollector(Context context, StressService service) {
         mContext = context;
         mService = service;
-        mUploader = new DataUploader(this);
+        mUploader = new DataUploader(mContext, this);
+        mDatabase = new WorkstressDB(mContext);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
         mReportID = mSettings.getInt("reportid", 0);
@@ -97,6 +103,9 @@ public class DataCollector {
 
             }
         });
+
+        sendOutstandingReports();
+        sendOutstandingRates();
     }
 
     public void setUser(int user) {
@@ -164,29 +173,41 @@ public class DataCollector {
     }
 
     public boolean submitReport(StressReport report) {
-        mUploader.uploadReport(mUserID, mReportID, report);
+        ArrayList reports = new ArrayList(1);
+        report.reportid = mReportID;
+        reports.add(report);
+        mDatabase.addReports(reports);
+        submittedReport();
+
+        sendOutstandingReports();
         return true;
     }
 
-    private synchronized void log(int heartrate) {
+    private void log(int heartrate) {
+        synchronized (mLogLock) {
 
-        long time = System.currentTimeMillis() / 1000L;
+            long time = System.currentTimeMillis() / 1000L;
 
-        if (time > mLastHeartTime) {
-            mHeartrates.add(heartrate);
-            mTimestamps.add(time);
-            mLastHeartTime = time;
+            if (time > mLastHeartTime) {
+                mHeartrates.add(heartrate);
+                mTimestamps.add(time);
+                mLastHeartTime = time;
+            }
         }
     }
 
     public void startCollecting() {
 
-        String device = mSettings.getString("macaddress", "");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 
-        if (!device.equals("")) {
-            mHeartrateMonitor.setDeviceID(device);
-            mHeartrateMonitor.setConnectRetry(true);
-            mHeartrateMonitor.start();
+            String device = mSettings.getString("macaddress", "");
+
+            if (!device.equals("")) {
+                mHeartrateMonitor.setDeviceID(device);
+                mHeartrateMonitor.setConnectRetry(true);
+                mHeartrateMonitor.start();
+            }
+
         }
 
         mCollecting = true;
@@ -203,7 +224,11 @@ public class DataCollector {
 
     public void stopCollection() {
         if (mCollecting) {
-            mHeartrateMonitor.stop();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                mHeartrateMonitor.stop();
+            }
+
             mCollecting = false;
             mTimer.cancel();
             uploadLog();
@@ -211,27 +236,33 @@ public class DataCollector {
     }
 
     private void uploadLog() {
-
         copyLog();
-        Log.v(LOG_TAG, "Uploading " + mUploadHeartrates.size());
-        mUploader.uploadHeartBeats(mUserID, mUploadHeartrates, mUploadTimestamps);
+        sendOutstandingRates();
     }
 
-    private synchronized void copyLog() {
-        mUploadHeartrates.addAll(mHeartrates);
-        mUploadTimestamps.addAll(mTimestamps);
+    private void copyLog() {
 
-        mHeartrates.clear();
-        mTimestamps.clear();
-    }
+        synchronized (mLogLock) {
+            mDatabase.addHeartrates(mHeartrates, mTimestamps);
 
-    public synchronized void uploadComplete() {
-        mUploadHeartrates.clear();
-        mUploadTimestamps.clear();
+            mHeartrates.clear();
+            mTimestamps.clear();
+        }
+
     }
 
     public void onDestroy() {
         outOfTime();
+
+        if (mReportSendTimer != null) {
+            mReportSendTimer.cancel();
+        }
+
+        if (mHeartrateSendTimer != null) {
+            mHeartrateSendTimer.cancel();
+        }
+
+        mDatabase.closeDB();
     }
 
     public void submittedReport() {
@@ -252,7 +283,70 @@ public class DataCollector {
         mService.reportNeededBroadcast(false);
     }
 
+    public void sendOutstandingReports() {
+
+        List<StressReport> reports = mDatabase.getAllReports();
+
+        if (reports.size() > 0) {
+            if (mReportSendTimer != null) {
+                mReportSendTimer = new Timer();
+
+                mReportSendTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        sendOutstandingReports();
+                    }
+                }, RESENT_INTERVAL, RESENT_INTERVAL);
+            }
+
+            mUploader.uploadReports(mUserID, reports);
+        }
+    }
+
+    public void completeOutstandingReports() {
+
+        if (mReportSendTimer != null) {
+            mReportSendTimer.cancel();
+            mReportSendTimer = null;
+        }
+
+        mDatabase.emptyReports();
+    }
+
+    public void sendOutstandingRates() {
+        List heartrates = mDatabase.getAllHeartrates();
+
+        ArrayList<Integer> rates = (ArrayList<Integer>) heartrates.get(0);
+
+        if (rates.size() > 0) {
+
+            ArrayList<Long> timestamps = (ArrayList<Long>) heartrates.get(1);
+
+            if (mHeartrateSendTimer != null) {
+                mHeartrateSendTimer = new Timer();
+
+                mHeartrateSendTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        sendOutstandingRates();
+                    }
+                }, RESENT_INTERVAL, RESENT_INTERVAL);
+            }
+
+            mUploader.uploadHeartBeats(true, mUserID, rates, timestamps);
+        }
+    }
+
     public List getAllUsers() {
         return mUploader.getAllUsers();
+    }
+
+    public void completeOutstandingRates() {
+        if (mHeartrateSendTimer != null) {
+            mHeartrateSendTimer.cancel();
+            mHeartrateSendTimer = null;
+        }
+
+        mDatabase.emptyHeartrates();
     }
 }
