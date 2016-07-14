@@ -41,7 +41,7 @@ public class WorkstressDB {
         dbHelper.close();
     }
 
-    public List<StressReport> getAllReports() {
+    public synchronized List<StressReport> getAllReports() {
 
         List<StressReport> reports = new ArrayList<>();
 
@@ -74,7 +74,7 @@ public class WorkstressDB {
         return reports;
     }
 
-    public List getAllHeartrates() {
+    public synchronized List getAllHeartrates() {
 
         List heartrates = new ArrayList();
 
@@ -98,7 +98,7 @@ public class WorkstressDB {
         return heartrates;
     }
 
-    public void addReports(List<StressReport> reports) {
+    public synchronized void addReports(List<StressReport> reports) {
 
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
 
@@ -128,7 +128,7 @@ public class WorkstressDB {
         }
     }
 
-    public void addHeartrates(List<Integer> heartrates, List<Long> timestamps) {
+    public synchronized void addHeartrates(List<Integer> heartrates, List<Long> timestamps) {
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
 
         try {
@@ -153,12 +153,12 @@ public class WorkstressDB {
         }
     }
 
-    public void emptyReports() {
+    public synchronized void emptyReports() {
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
         sqLiteDatabase.delete(dbHelper.REPORTTABLE, null, null);
     }
 
-    public void emptyHeartrates() {
+    public synchronized void emptyHeartrates() {
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
         sqLiteDatabase.delete(dbHelper.RATETABLE, null, null);
     }
