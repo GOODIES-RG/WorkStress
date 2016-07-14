@@ -1,0 +1,165 @@
+/*Copyright 2016 WorkStress Experiment
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package uk.ac.mdx.cs.ie.workstress.db;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
+
+
+/**
+ * Implementation class to handle context database operations
+ *
+ * @author Dean Kramer <d.kramer@mdx.ac.uk>
+ */
+public class WorkstressDB {
+
+    private OpenDBHelper dbHelper;
+
+    public WorkstressDB(Context context) {
+        dbHelper = new OpenDBHelper(context);
+    }
+
+    public void closeDB() {
+        dbHelper.close();
+    }
+
+    public List<StressReport> getAllReports() {
+
+        List<StressReport> reports = new ArrayList<>();
+
+        try {
+            SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
+            Cursor cursor = sqLiteDatabase.rawQuery(
+                    "Select reportid, submit_date, q1, q2, q3, q4, q5, q6, q7, q8;",
+                    null);
+
+            while (cursor.moveToNext()) {
+                StressReport report = new StressReport();
+                report.reportid = cursor.getInt(0);
+                report.date = cursor.getInt(1);
+                report.question1 = cursor.getInt(2);
+                report.question2 = cursor.getInt(3);
+                report.question3 = cursor.getInt(4);
+                report.question4 = cursor.getInt(5);
+                report.question5 = cursor.getInt(6);
+                report.question6 = cursor.getInt(7);
+                report.question7 = cursor.getInt(8);
+                report.question8 = cursor.getInt(9);
+
+                reports.add(report);
+            }
+
+        } catch (Exception sqlerror) {
+            Log.e("Table read error", sqlerror.getMessage());
+        }
+
+        return reports;
+    }
+
+    public List getAllHeartrates() {
+
+        List heartrates = new ArrayList();
+
+        try {
+            SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
+            Cursor cursor = sqLiteDatabase.rawQuery(
+                    "Select datetime, rate;", null);
+
+            while (cursor.moveToLast()) {
+                ArrayList list = new ArrayList();
+                list.add(cursor.getInt(0));
+                list.add(cursor.getInt(1));
+
+                heartrates.add(list);
+            }
+
+        } catch (Exception sqlerror) {
+            Log.e("Table read error", sqlerror.getMessage());
+        }
+
+        return heartrates;
+    }
+
+    public void addReports(List<StressReport> reports) {
+
+        SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
+
+        try {
+
+            sqLiteDatabase.beginTransaction();
+
+            for (StressReport report : reports) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("reportid", report.reportid);
+                contentValues.put("submit_date", report.date);
+                contentValues.put("q1", report.question1);
+                contentValues.put("q2", report.question2);
+                contentValues.put("q3", report.question3);
+                contentValues.put("q4", report.question4);
+                contentValues.put("q5", report.question5);
+                contentValues.put("q6", report.question6);
+                contentValues.put("q7", report.question7);
+                contentValues.put("q8", report.question8);
+                sqLiteDatabase.insert(dbHelper.REPORTTABLE, null, contentValues);
+            }
+
+        } catch (Exception sqlerror) {
+            Log.e("Table insert error", sqlerror.getMessage());
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+    }
+
+    public void addHeartrates(List<Integer> heartrates, List<Long> timestamps) {
+        SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
+
+        try {
+
+            sqLiteDatabase.beginTransaction();
+
+            int size = heartrates.size();
+
+            if (size == timestamps.size()) {
+                for (int i = 0; i < size; i++) {
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put("datetime", heartrates.get(i));
+                    contentValues.put("rate", timestamps.get(i));
+                    sqLiteDatabase.insert(dbHelper.RATETABLE, null, contentValues);
+                }
+            }
+
+        } catch (Exception sqlerror) {
+            Log.e("Table insert error", sqlerror.getMessage());
+        } finally {
+            sqLiteDatabase.endTransaction();
+        }
+    }
+
+    public void emptyReports() {
+        SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
+        sqLiteDatabase.delete(dbHelper.REPORTTABLE, null, null);
+    }
+
+    public void emptyHeartrates() {
+        SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
+        sqLiteDatabase.delete(dbHelper.RATETABLE, null, null);
+    }
+}
