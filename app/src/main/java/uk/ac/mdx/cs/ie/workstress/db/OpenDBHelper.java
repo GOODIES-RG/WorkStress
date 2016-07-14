@@ -30,13 +30,13 @@ public class OpenDBHelper extends SQLiteOpenHelper {
 
     private static final String RATETABLE_CREATE = "create table " + RATETABLE
             + " (_id integer primary key autoincrement, "
-            + "datetime int,"
-            + "rate int);";
+            + "datetime integer,"
+            + "rate Integer);";
 
     private static final String REPORTTABLE_CREATE = "create table " + REPORTTABLE
             + " (_id integer primary key autoincrement, "
-            + " reportid int,"
-            + " submit_date int,"
+            + " reportid integer,"
+            + " submit_date integer,"
             + " q1 int,"
             + " q2 int,"
             + " q3 int,"

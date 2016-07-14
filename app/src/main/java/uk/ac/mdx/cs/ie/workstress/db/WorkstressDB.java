@@ -32,6 +32,8 @@ import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 public class WorkstressDB {
 
     private OpenDBHelper dbHelper;
+    public static final String REPORTTABLE = "report";
+    public static final String RATETABLE = "heartrates";
 
     public WorkstressDB(Context context) {
         dbHelper = new OpenDBHelper(context);
@@ -44,11 +46,12 @@ public class WorkstressDB {
     public synchronized List<StressReport> getAllReports() {
 
         List<StressReport> reports = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
 
         try {
-            SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
+
             Cursor cursor = sqLiteDatabase.rawQuery(
-                    "Select reportid, submit_date, q1, q2, q3, q4, q5, q6, q7, q8;",
+                    "Select reportid, submit_date, q1, q2, q3, q4, q5, q6, q7, q8 from report;",
                     null);
 
             while (cursor.moveToNext()) {
@@ -69,6 +72,8 @@ public class WorkstressDB {
 
         } catch (Exception sqlerror) {
             Log.e("Table read error", sqlerror.getMessage());
+        } finally {
+            sqLiteDatabase.close();
         }
 
         return reports;
@@ -77,24 +82,28 @@ public class WorkstressDB {
     public synchronized List getAllHeartrates() {
 
         List heartrates = new ArrayList();
+        List rates = new ArrayList();
+        List dates = new ArrayList();
+        heartrates.add(rates);
+        heartrates.add(dates);
+
+        SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
 
         try {
-            SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
+
             Cursor cursor = sqLiteDatabase.rawQuery(
-                    "Select rate, datetime;", null);
+                    "Select rate, datetime from heartrates;", null);
 
-            while (cursor.moveToLast()) {
-                ArrayList list = new ArrayList();
-                list.add(cursor.getInt(0));
-                list.add(cursor.getLong(1));
-
-                heartrates.add(list);
+            while (cursor.moveToNext()) {
+                rates.add(cursor.getInt(0));
+                dates.add(cursor.getLong(1));
             }
 
         } catch (Exception sqlerror) {
             Log.e("Table read error", sqlerror.getMessage());
+        } finally {
+            sqLiteDatabase.close();
         }
-
         return heartrates;
     }
 
@@ -121,14 +130,18 @@ public class WorkstressDB {
                 sqLiteDatabase.insert(dbHelper.REPORTTABLE, null, contentValues);
             }
 
+            sqLiteDatabase.setTransactionSuccessful();
+
         } catch (Exception sqlerror) {
             Log.e("Table insert error", sqlerror.getMessage());
         } finally {
             sqLiteDatabase.endTransaction();
+            sqLiteDatabase.close();
         }
     }
 
     public synchronized void addHeartrates(List<Integer> heartrates, List<Long> timestamps) {
+
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
 
         try {
@@ -140,26 +153,31 @@ public class WorkstressDB {
             if (size == timestamps.size()) {
                 for (int i = 0; i < size; i++) {
                     ContentValues contentValues = new ContentValues();
-                    contentValues.put("datetime", heartrates.get(i));
-                    contentValues.put("rate", timestamps.get(i));
-                    sqLiteDatabase.insert(dbHelper.RATETABLE, null, contentValues);
+                    contentValues.put("datetime", timestamps.get(i));
+                    contentValues.put("rate", heartrates.get(i));
+                    sqLiteDatabase.insert(RATETABLE, null, contentValues);
                 }
+
+                sqLiteDatabase.setTransactionSuccessful();
             }
 
         } catch (Exception sqlerror) {
             Log.e("Table insert error", sqlerror.getMessage());
         } finally {
             sqLiteDatabase.endTransaction();
+            sqLiteDatabase.close();
         }
     }
 
     public synchronized void emptyReports() {
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
         sqLiteDatabase.delete(dbHelper.REPORTTABLE, null, null);
+        sqLiteDatabase.close();
     }
 
     public synchronized void emptyHeartrates() {
         SQLiteDatabase sqLiteDatabase = dbHelper.getWritableDatabase();
         sqLiteDatabase.delete(dbHelper.RATETABLE, null, null);
+        sqLiteDatabase.close();
     }
 }
