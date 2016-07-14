@@ -81,12 +81,12 @@ public class WorkstressDB {
         try {
             SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
             Cursor cursor = sqLiteDatabase.rawQuery(
-                    "Select datetime, rate;", null);
+                    "Select rate, datetime;", null);
 
             while (cursor.moveToLast()) {
                 ArrayList list = new ArrayList();
                 list.add(cursor.getInt(0));
-                list.add(cursor.getInt(1));
+                list.add(cursor.getLong(1));
 
                 heartrates.add(list);
             }
