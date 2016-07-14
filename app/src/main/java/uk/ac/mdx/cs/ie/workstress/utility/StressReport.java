@@ -15,6 +15,8 @@ package uk.ac.mdx.cs.ie.workstress.utility;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 /**
  * Class holding Stress Report Information
  *
@@ -24,14 +26,14 @@ public class StressReport implements Parcelable {
 
     public int reportid;
     public int date;
-    public int question1 = 1;
-    public int question2 = 1;
-    public int question3 = 1;
-    public int question4 = 1;
-    public int question5 = 1;
-    public int question6 = 1;
-    public int question7 = 1;
-    public int question8 = 1;
+    public int question1 = 0;
+    public int question2 = 0;
+    public int question3 = 0;
+    public int question4 = 0;
+    public int question5 = 0;
+    public int question6 = 0;
+    public int question7 = 0;
+    public int question8 = 0;
 
     @Override
     public int describeContents() {
@@ -81,5 +83,21 @@ public class StressReport implements Parcelable {
         question6 = in.readInt();
         question7 = in.readInt();
         question8 = in.readInt();
+    }
+
+    public ArrayList<Integer> toArray() {
+        ArrayList<Integer> results = new ArrayList(10);
+        results.add(reportid);
+        results.add(date);
+        results.add(question1);
+        results.add(question2);
+        results.add(question3);
+        results.add(question4);
+        results.add(question5);
+        results.add(question6);
+        results.add(question7);
+        results.add(question8);
+
+        return results;
     }
 }
