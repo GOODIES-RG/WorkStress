@@ -317,10 +317,9 @@ public class DataCollector {
         List heartrates = mDatabase.getAllHeartrates();
 
         ArrayList<Integer> rates = (ArrayList<Integer>) heartrates.get(0);
+        ArrayList<Long> timestamps = (ArrayList<Long>) heartrates.get(1);
 
-        if (rates.size() > 0) {
-
-            ArrayList<Long> timestamps = (ArrayList<Long>) heartrates.get(1);
+        if (rates.size() == timestamps.size()) {
 
             if (mHeartrateSendTimer != null) {
                 mHeartrateSendTimer = new Timer();
