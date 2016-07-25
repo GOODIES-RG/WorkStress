@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import uk.ac.mdx.cs.ie.acontextlib.ContextReceiver;
-import uk.ac.mdx.cs.ie.acontextlib.HeartRateMonitor;
+import uk.ac.mdx.cs.ie.acontextlib.IContextReceiver;
+import uk.ac.mdx.cs.ie.acontextlib.personal.HeartRateMonitor;
 import uk.ac.mdx.cs.ie.workstress.db.WorkstressDB;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 
@@ -68,7 +68,8 @@ public class DataCollector {
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
         mReportID = mSettings.getInt("reportid", 0);
-        mHeartrateMonitor = new HeartRateMonitor(mContext, new ContextReceiver() {
+        mHeartrateMonitor = new HeartRateMonitor(mContext);
+        mHeartrateMonitor.addContextReceiver(new IContextReceiver() {
             @Override
             public void newContextValue(String name, long value) {
                 log((int) value);
@@ -100,6 +101,11 @@ public class DataCollector {
 
             @Override
             public void newContextValues(Map<String, String> values) {
+
+            }
+
+            @Override
+            public void newUIEvent(int event) {
 
             }
         });
