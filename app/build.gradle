@@ -28,5 +28,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.+'
     compile 'de.timroes:aXMLRPC:1.8.0'
     compile 'org.adw.library:discrete-seekbar:1.0.1'
-    compile 'uk.ac.mdx.cs.ie:acontextlib:0.9.0'
+    compile 'uk.ac.mdx.cs.ie:acontextlib:0.9.1'
 }
