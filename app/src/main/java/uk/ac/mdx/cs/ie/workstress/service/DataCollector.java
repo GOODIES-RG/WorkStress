@@ -103,11 +103,6 @@ public class DataCollector {
             public void newContextValues(Map<String, String> values) {
 
             }
-
-            @Override
-            public void newUIEvent(int event) {
-
-            }
         });
 
         sendOutstandingReports();
