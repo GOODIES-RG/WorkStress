@@ -87,8 +87,8 @@ public class StressService extends Service {
         }
 
         @Override
-        public boolean setUser(int user) throws RemoteException {
-            mCollector.setUser(user);
+        public boolean setUser(int user, String username) throws RemoteException {
+            mCollector.setUser(user, username);
             return true;
         }
 

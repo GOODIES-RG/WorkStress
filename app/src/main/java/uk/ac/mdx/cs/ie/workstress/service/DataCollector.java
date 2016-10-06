@@ -35,14 +35,15 @@ import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 public class DataCollector {
 
     private static final String WORK_PREFS = "StressPrefs";
-    private DataUploader mUploader;
-    private ArrayList<Integer> mHeartrates = new ArrayList<>(40);
-    private ArrayList<Long> mTimestamps = new ArrayList<>(40);
+    private XmlRpcUploader mUploader;
+    private ArrayList<Integer> mHeartrates = new ArrayList<>(200);
+    private ArrayList<Long> mTimestamps = new ArrayList<>(200);
     private SharedPreferences mSettings;
     private Context mContext;
     private Timer mTimer;
     private boolean mCollecting = false;
-    private static final int INTERVAL = 20000;
+    private static final int HR_INTERVAL = 20000;
+    private static final int INTERVAL = 60000;
     private static final int REPORT_INTERVAL = 600000;
     private static final int RESENT_INTERVAL = 300000;
     private int mUserID;
@@ -58,12 +59,14 @@ public class DataCollector {
     private long mLastHeartTime = 0;
     private WorkstressDB mDatabase;
     private Object mLogLock = new Object();
+    private long mOutstandingRates = 0;
+    private boolean mHeartMonitorBonded = false;
 
 
     public DataCollector(Context context, StressService service) {
         mContext = context;
         mService = service;
-        mUploader = new DataUploader(mContext, this);
+        mUploader = new XmlRpcUploader(mContext, this);
         mDatabase = new WorkstressDB(mContext);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
@@ -105,13 +108,20 @@ public class DataCollector {
             }
         });
 
+        mOutstandingRates = mDatabase.numOfRates();
+
+        if (mOutstandingRates > 0) {
+            sendOutstandingRates();
+        }
+
         sendOutstandingReports();
-        sendOutstandingRates();
+
     }
 
-    public void setUser(int user) {
+    public void setUser(int user, String username) {
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt("userid", user);
+        editor.putString("username", username);
         editor.commit();
         mUserID = user;
     }
@@ -199,14 +209,18 @@ public class DataCollector {
 
     public void startCollecting() {
 
+        int interval = INTERVAL;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 
             String device = mSettings.getString("macaddress", "");
 
             if (!device.equals("")) {
+                mHeartMonitorBonded = true;
                 mHeartrateMonitor.setDeviceID(device);
                 mHeartrateMonitor.setConnectRetry(true);
                 mHeartrateMonitor.start();
+                interval = HR_INTERVAL;
             }
 
         }
@@ -214,12 +228,13 @@ public class DataCollector {
         mCollecting = true;
 
         mTimer = new Timer();
+
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 uploadLog();
             }
-        }, INTERVAL, INTERVAL);
+        }, interval, interval);
 
     }
 
@@ -227,7 +242,9 @@ public class DataCollector {
         if (mCollecting) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                mHeartrateMonitor.stop();
+                if (mHeartMonitorBonded) {
+                    mHeartrateMonitor.stop();
+                }
             }
 
             mCollecting = false;
@@ -237,15 +254,18 @@ public class DataCollector {
     }
 
     private void uploadLog() {
-        copyLog();
-        sendOutstandingRates();
+        persistLog();
+
+        if (mOutstandingRates > 0) {
+            sendOutstandingRates();
+        }
     }
 
-    private void copyLog() {
+    private void persistLog() {
 
         synchronized (mLogLock) {
             mDatabase.addHeartrates(mHeartrates, mTimestamps);
-
+            mOutstandingRates += mHeartrates.size();
             mHeartrates.clear();
             mTimestamps.clear();
         }
@@ -264,6 +284,7 @@ public class DataCollector {
         }
 
         mDatabase.closeDB();
+        mUploader.closeConnection();
     }
 
     public void submittedReport() {

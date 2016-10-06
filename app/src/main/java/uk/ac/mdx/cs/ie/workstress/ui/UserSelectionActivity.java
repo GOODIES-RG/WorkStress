@@ -93,12 +93,12 @@ public class UserSelectionActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setUser(int user) {
+    public void setUser(int user, String username) {
         mUser = user;
 
         if (mStressService != null) {
             try {
-                mStressService.setUser(user);
+                mStressService.setUser(user, username);
             } catch (RemoteException e) {
                 Log.e(LOG_TAG, e.getMessage().toString());
             }

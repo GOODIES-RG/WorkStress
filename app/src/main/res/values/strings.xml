@@ -3,7 +3,7 @@
     <string name="action_setname">Set User</string>
     <string name="action_startstop">Start/Stop Heart Monitor</string>
     <string name="settings">Heartbeat Monitor</string>
-    <string name="collecting">Collecting heart rate...</string>
+    <string name="collecting">Logged into system</string>
     <string name="serviceNotBound">Service not started. Try again later</string>
     <string name="userunknown">You need to choose a user first.</string>
     <string name="ok">Ok</string>
@@ -11,23 +11,26 @@
     <string name="password">Password</string>
     <string name="incorrectpaw">Incorrect Password</string>
     <string name="servicecantbind">Cannot connect to service. Try again later</string>
-    <string name="noreportneeded">No report currently required...</string>
-    <string name="pair_device">Pair Heartrate Monitor</string>
+    <string name="noreportneeded">You will receive a survey soon</string>
+    <string name="appisrunning">App is running</string>
     <string name="title_activity_pair_bluetooth_device">PairBluetoothDevice</string>
     <string name="rescan">Rescan</string>
     <string name="refresh">Refresh</string>
     <string name="fix">fix</string>
-    <string name="pairdevice">Pair Bluetooth Device</string>
-    <string name="reportsubmitted">Report submitted</string>
+    <string name="pair_device">Connect Heartrate Device</string>
+    <string name="device_paired">Heartrate Device Connected</string>
+    <string name="unpair_device">Disconnect Heartrate Device</string>
+    <string name="reportsubmitted">Survey submitted</string>
     <string name="undo">Undo</string>
-    <string name="newreport">New Report</string>
-    <string name="reportneeded">New Report Needed</string>
-    <string name="reportneededtext">Please complete the report</string>
+    <string name="newreport">New Survey</string>
+    <string name="reportneeded">New Survey Needed</string>
+    <string name="reportneededtext">Please complete the survey</string>
     <string name="batteryignore">Please enable ignore battery optimisation for this app</string>
     <string name="needbatteryignore">Please enable ignore battery optimisation for this app</string>
     <string name="cannotback">Cannot exit while heartrate is being collected</string>
     <string name="disconnected">Paired device disconnected. Attempting to reconnect...</string>
     <string name="controuble">Connection Problem</string>
+    <string name="logoff">Log Off</string>
 
     <!-- Questions -->
     <string name="question1">I am confident I will complete the task</string>

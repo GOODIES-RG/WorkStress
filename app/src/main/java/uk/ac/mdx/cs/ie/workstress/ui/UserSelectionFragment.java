@@ -74,10 +74,10 @@ public class UserSelectionFragment extends Fragment {
 
                 if (user.checked) {
                     user.checked = false;
-                    mActivity.setUser(0);
+                    mActivity.setUser(0, "");
                 } else {
                     user.checked = true;
-                    mActivity.setUser(user.userid);
+                    mActivity.setUser(user.userid, user.username);
                 }
 
                 mAdapter.notifyDataSetChanged();

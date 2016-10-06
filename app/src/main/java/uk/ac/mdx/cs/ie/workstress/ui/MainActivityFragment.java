@@ -17,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -50,13 +51,32 @@ public class MainActivityFragment extends Fragment implements DiscreteSeekBar.On
         mActivity = (MainActivity) getActivity();
 
         if (mActivity.mReportNeeded) {
-            setupUI();
+            setupReportUI();
             mReport = new StressReport();
+        } else {
+            setupUI();
         }
     }
 
-
     private void setupUI() {
+
+        TextView username = (TextView) mActivity.findViewById(R.id.lblUsername);
+        TextView deviceconnected = (TextView) mActivity.findViewById(R.id.lblDevicePaired);
+
+        if (username != null) {
+            username.setAllCaps(true);
+            username.setText(mActivity.mUsername);
+        }
+
+        if (deviceconnected != null) {
+            if (mActivity.mIsPaired) {
+                deviceconnected.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
+
+    private void setupReportUI() {
         mSbAnswer1 = (DiscreteSeekBar) mActivity.findViewById(R.id.sbq1);
         mSbAnswer1.setOnProgressChangeListener(this);
 

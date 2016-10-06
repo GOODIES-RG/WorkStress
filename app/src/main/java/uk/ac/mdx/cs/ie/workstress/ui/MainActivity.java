@@ -60,7 +60,10 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private static final String USER_PREF = "userid";
     private static final String REPORT_PREF = "reportid";
     private static final String REPORT_SUBMIT_TIME_PREF = "reportstime";
+    private static final String USER_NAME = "username";
     private int mUser;
+    public String mUsername = "";
+    public boolean mIsPaired = true;
     private SharedPreferences mSettings;
     private FragmentManager mFragManager;
     private FloatingActionButton mFabButton;
@@ -80,7 +83,14 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
         mSettings = mContext.getSharedPreferences(STRESS_PREFS, 0);
 
+        String device = mSettings.getString("macaddress", "");
+
+        if (device.isEmpty()) {
+            mIsPaired = false;
+        }
+
         mReportNumber = mSettings.getInt(REPORT_PREF, 0);
+
 
         if (mReportNumber > 0) {
             long current = System.currentTimeMillis() / 1000L;
@@ -262,10 +272,14 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mBReceiver);
+
+        if (mBReceiver != null) {
+            unregisterReceiver(mBReceiver);
+        }
+
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         mMenu = menu;
@@ -295,6 +309,10 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         }
 
         return super.onOptionsItemSelected(item);
+    } */
+
+    public void logout(View view) {
+
     }
 
     private void pairBluetoothDevice() {
@@ -356,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     @Override
     public void doNegativeButtonClick(Object... para) {
+        finish();
     }
 
     @Override
@@ -386,31 +405,37 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     public void onResume() {
         super.onResume();
-
         mUser = mSettings.getInt(USER_PREF, 0);
-        mReportNumber = mSettings.getInt(REPORT_PREF, 0);
+        mUsername = mSettings.getString(USER_NAME, "");
 
-        if ((mReportNumber > 0) && (mReportNeeded)) {
-            if (mJustStarted) {
-                mJustStarted = false;
-            } else {
-                switchToReport(true);
-            }
-        }
+        if (mUsername.isEmpty()) {
+            setUsername();
+        } else {
 
-        mBReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                boolean needed = intent.getExtras().getBoolean(StressService.BROADCAST_NEEDED, false);
+            mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
-                if (needed != mReportNeeded) {
-                    switchToReport(needed);
+            if ((mReportNumber > 0) && (mReportNeeded)) {
+                if (mJustStarted) {
+                    mJustStarted = false;
+                } else {
+                    switchToReport(true);
                 }
             }
-        };
 
-        IntentFilter filter = new IntentFilter(StressService.BROADCAST_INTENT);
-        registerReceiver(mBReceiver, filter);
+            mBReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    boolean needed = intent.getExtras().getBoolean(StressService.BROADCAST_NEEDED, false);
+
+                    if (needed != mReportNeeded) {
+                        switchToReport(needed);
+                    }
+                }
+            };
+
+            IntentFilter filter = new IntentFilter(StressService.BROADCAST_INTENT);
+            registerReceiver(mBReceiver, filter);
+        }
     }
 
 }

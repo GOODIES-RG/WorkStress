@@ -5,12 +5,62 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="73dp"
+        android:id="@+id/btnLogOff"
+        android:onClick="logout"
+        android:text="@string/logoff" />
+
+    <Button
+        android:text="@string/pair_device"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnConnectDevice"
+        android:layout_above="@+id/btnLogOff"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="88dp" />
+
+    <TextView
+        android:text="@string/device_paired"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btnConnectDevice"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="63dp"
+        android:id="@+id/lblDevicePaired"
+        android:visibility="invisible" />
+
+    <TextView
+        android:text="USERNAME"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:id="@+id/lblUsername"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/noreportneeded"
         android:id="@+id/textView2"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/lblDevicePaired"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:text="@string/appisrunning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/lblUsername"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp" />
 </RelativeLayout>
