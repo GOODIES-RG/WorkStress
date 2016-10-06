@@ -14,6 +14,7 @@ package uk.ac.mdx.cs.ie.workstress.service;
 
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,7 +58,13 @@ public class XmlRpcUploader implements DataUploader {
         mContext = context;
         mCollector = collector;
         mConnectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Bundle metadata = context.getApplicationInfo().metaData;
+        Bundle metadata = null;
+
+        try {
+            metadata = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA).metaData;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
         SERVER_URL = "http://" + metadata.getString("workstressService_Host", "");
         API_KEY = metadata.getString("workstressService_ApiKey", "");
 
