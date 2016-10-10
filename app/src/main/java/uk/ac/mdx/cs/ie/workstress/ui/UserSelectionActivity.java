@@ -114,7 +114,7 @@ public class UserSelectionActivity extends AppCompatActivity {
             users = mStressService.getAllUsers();
             Collections.sort(users);
 
-            if (mUser > 0) {
+            if (mUser > 0 && (users.size() > mUser)) {
                 WorkstressUser user = (WorkstressUser) users.get(mUser - 1);
                 user.checked = true;
             }
