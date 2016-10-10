@@ -65,7 +65,7 @@ public class XmlRpcUploader implements DataUploader {
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(LOG_TAG, e.getMessage());
         }
-        SERVER_URL = "http://" + metadata.getString("workstressService_Host", "");
+        SERVER_URL = "http://" + metadata.getString("workstressService_Host", "") + "/html/rpc/rpc.php";
         API_KEY = metadata.getString("workstressService_ApiKey", "");
 
         try {
