@@ -92,6 +92,7 @@ public class BluetoothDeviceAdapter extends RecyclerView.Adapter<BluetoothDevice
         int i = mBluetoothDevices.indexOf(device);
         BluetoothDevice d = mBluetoothDevices.get(i);
         d.rssi = device.rssi;
+        d.name = device.name;
         Collections.sort(mBluetoothDevices);
         notifyDataSetChanged();
     }

@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import uk.ac.mdx.cs.ie.workstress.R;
+import uk.ac.mdx.cs.ie.workstress.utility.BluetoothDevice;
 
 /**
  * Activity to pair bluetooth devices
@@ -74,6 +75,15 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         }
 
         mPairedDevice = mSettings.getString("macaddress", "");
+
+        if (!mPairedDevice.isEmpty()) {
+            BluetoothDevice bluetoothDevice = new BluetoothDevice();
+            bluetoothDevice.macaddress = mPairedDevice;
+            bluetoothDevice.name = "Currently not found";
+            bluetoothDevice.checked = true;
+            bluetoothDevice.rssi = -1000;
+            mFragment.foundDevice(bluetoothDevice);
+        }
     }
 
     public void setMacAddress(String mac) {
