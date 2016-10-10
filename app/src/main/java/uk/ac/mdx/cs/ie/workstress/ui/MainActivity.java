@@ -31,8 +31,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import java.util.Timer;
@@ -70,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private static final String LOG_TAG = "WorkStressActivity";
     public boolean mReportNeeded = false;
     private int mReportNumber = 0;
-    private Menu mMenu;
     private boolean mNoDoze = true;
     private boolean mJustStarted = false;
     private BroadcastReceiver mBReceiver;
@@ -279,43 +276,19 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        mMenu = menu;
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.action_setname:
-                setUsername();
-                break;
-
-            case R.id.action_startstop:
-                startStopMonitor();
-                break;
-
-            case R.id.pair_device:
-                pairBluetoothDevice();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    } */
-
     public void logout(View view) {
 
+        startStopMonitor();
+
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putInt(USER_PREF, 0);
+        editor.putString(USER_NAME, "");
+        editor.commit();
+
+        finish();
     }
 
-    private void pairBluetoothDevice() {
+    public void pairBluetoothDevice(View v) {
         Intent i = new Intent(this, BluetoothDeviceActivity.class);
         startActivity(i);
     }
@@ -333,21 +306,15 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         }
 
         try {
-            MenuItem changeUsername = mMenu.getItem(0);
-            MenuItem pairBluetooth = mMenu.getItem(2);
 
             if (mStressService.isCollecting()) {
                 mStressService.stopHeartMonitor();
-                changeUsername.setEnabled(true);
-                pairBluetooth.setEnabled(true);
             } else {
                 if (mUser < 1) {
                     Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
                     mStressService.startHeartMonitor();
-                    changeUsername.setEnabled(false);
-                    pairBluetooth.setEnabled(false);
                 }
             }
 
@@ -360,7 +327,8 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     public void doPositiveButtonClick(Object... para) {
         String password = (String) para[0];
 
-        if (password.equals("setusername")) {
+        //if (password.equals("setusername")) {
+        if (password.equals("")) {
             Intent intent = new Intent(this, UserSelectionActivity.class);
             startActivity(intent);
         } else {

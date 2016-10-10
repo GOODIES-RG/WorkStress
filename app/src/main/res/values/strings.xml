@@ -17,7 +17,7 @@
     <string name="rescan">Rescan</string>
     <string name="refresh">Refresh</string>
     <string name="fix">fix</string>
-    <string name="pair_device">Connect Heartrate Device</string>
+    <string name="pair_device">Select Heartrate Device</string>
     <string name="device_paired">Heartrate Device Connected</string>
     <string name="unpair_device">Disconnect Heartrate Device</string>
     <string name="reportsubmitted">Survey submitted</string>
