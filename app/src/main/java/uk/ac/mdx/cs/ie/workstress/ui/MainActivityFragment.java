@@ -61,19 +61,11 @@ public class MainActivityFragment extends Fragment implements DiscreteSeekBar.On
     private void setupUI() {
 
         TextView username = (TextView) mActivity.findViewById(R.id.lblUsername);
-        TextView deviceconnected = (TextView) mActivity.findViewById(R.id.lblDevicePaired);
 
         if (username != null) {
             username.setAllCaps(true);
             username.setText(mActivity.mUsername);
         }
-
-        if (deviceconnected != null) {
-            if (mActivity.mIsPaired) {
-                deviceconnected.setVisibility(View.VISIBLE);
-            }
-        }
-
     }
 
     private void setupReportUI() {
