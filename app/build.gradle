@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
 
 android {
     compileSdkVersion 23
@@ -17,6 +18,39 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        main {
+            proto {
+                srcDir "$rootProject.projectDir/proto"
+            }
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
+    plugins {
+        javalite {
+            artifact = "com.google.protobuf:protoc-gen-javalite:3.0.0"
+        }
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.0.0' // CURRENT_GRPC_VERSION
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                javalite {}
+                grpc {
+                    // Options added to --grpc_out
+                    option 'lite'
+                }
+            }
+        }
+    }
 }
 
 dependencies {
@@ -29,4 +63,9 @@ dependencies {
     compile 'de.timroes:aXMLRPC:1.8.0'
     compile 'org.adw.library:discrete-seekbar:1.0.1'
     compile 'uk.ac.mdx.cs.ie:acontextlib:0.9.6'
+
+    compile 'io.grpc:grpc-okhttp:1.0.0' // CURRENT_GRPC_VERSION
+    compile 'io.grpc:grpc-protobuf-lite:1.0.0' // CURRENT_GRPC_VERSION
+    compile 'io.grpc:grpc-stub:1.0.0' // CURRENT_GRPC_VERSION
+    compile 'javax.annotation:javax.annotation-api:1.2'
 }
