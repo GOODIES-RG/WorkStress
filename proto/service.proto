@@ -1,0 +1,87 @@
+//
+// Copyright 2016 Middlesex University
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "uk.ac.mdx.cs.ie.workstress.proto";
+option java_outer_classname = "ServiceProto";
+option objc_class_prefix = "HLW";
+
+package workstress;
+
+service WorkStressService {
+    rpc newheartrates (HeartRatesRequest) returns (ServiceResponse) {
+    }
+    rpc outoftime (RanOutOfTimeRequest) returns (ServiceResponse) {
+    }
+    rpc getallusers (AllUsersRequest) returns (AllUsersResponse) {
+    }
+    rpc newReports (StressReportsRequest) returns (ServiceResponse) {
+    }
+}
+
+message HeartRatesRequest {
+    string apikey = 1;
+    int32 user = 2;
+    repeated HeartRate heartrates = 3;
+}
+
+message AllUsersRequest {
+    string apikey = 1;
+}
+
+message AllUsersResponse {
+    repeated UserInformation users = 1;
+}
+
+message UserInformation {
+    int32 userid = 1;
+    string username = 2;
+}
+
+message HeartRate {
+    int32 heartrate = 1;
+    int64 timestamp = 2;
+}
+
+message StressReportsRequest {
+    string apikey = 1;
+    int32 user = 2;
+    repeated StressReport reports = 3;
+}
+
+message StressReport {
+    int64 timestamp = 1;
+    int32 q1 = 2;
+    int32 q2 = 3;
+    int32 q3 = 4;
+    int32 q4 = 5;
+    int32 q5 = 6;
+    int32 q6 = 7;
+    int32 q7 = 8;
+    int32 q8 = 9;
+}
+
+message RanOutOfTimeRequest {
+    string apikey = 1;
+    int32 user = 2;
+}
+
+message ServiceResponse {
+    int32 response = 1;
+    int32 requesttime = 2;
+}
