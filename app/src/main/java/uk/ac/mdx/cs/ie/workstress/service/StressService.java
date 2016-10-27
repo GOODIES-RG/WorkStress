@@ -12,7 +12,6 @@ limitations under the License.
 
 package uk.ac.mdx.cs.ie.workstress.service;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -81,7 +80,6 @@ public class StressService extends Service {
 
         @Override
         public boolean sendReport(StressReport report) throws RemoteException {
-
             mCollector.submitReport(report);
             return false;
         }
@@ -117,7 +115,20 @@ public class StressService extends Service {
             return mCollector.getAllUsers();
         }
 
+        @Override
+        public void deviceChange() throws RemoteException {
+            StressService.this.deviceChange();
+        }
+
     };
+
+    private void deviceChange() {
+
+        if (mCollecting) {
+            mCollector.stopCollection();
+            mCollector.startCollecting();
+        }
+    }
 
     public boolean isCollecting() {
         return mCollecting;
@@ -153,7 +164,7 @@ public class StressService extends Service {
         Intent resultIntent = new Intent(mContext, MainActivity.class);
         PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, resultIntent, 0);
 
-        Notification.Builder builder = new Notification.Builder(mContext);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
         builder.setContentTitle(getText(R.string.reportneeded));
         builder.setContentText(getText(R.string.reportneededtext));
         builder.setSmallIcon(R.mipmap.ic_launcher);
@@ -176,7 +187,7 @@ public class StressService extends Service {
             Intent resultIntent = new Intent(mContext, MainActivity.class);
             PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext, 0, resultIntent, 0);
 
-            Notification.Builder builder = new Notification.Builder(mContext);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
             builder.setContentTitle(getText(R.string.controuble));
             builder.setContentText(getText(R.string.disconnected));
             builder.setSmallIcon(R.mipmap.ic_launcher);
