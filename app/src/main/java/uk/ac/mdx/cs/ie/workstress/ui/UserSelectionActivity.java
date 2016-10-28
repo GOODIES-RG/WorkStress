@@ -151,6 +151,7 @@ public class UserSelectionActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             mStressService = IStressService.Stub.asInterface(service);
             mBound = !mBound;
+            getUsers();
         }
 
         @Override
