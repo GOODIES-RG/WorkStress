@@ -19,7 +19,7 @@ import uk.ac.mdx.cs.ie.workstress.proto.UserInformation;
 
 public class MySQLDatabase implements Database {
 
-    private static final String DB_URL = "";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/workstress?autoReconnect=true&useSSL=false";
     private static final String DB_USER = "";
     private static final String DB_PASS = "";
     private Connection mConnection;
@@ -48,15 +48,17 @@ public class MySQLDatabase implements Database {
 
     private Connection getConnection() {
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
             if (mConnection == null || !mConnection.isValid(1)) {
                 mConnection = (Connection) DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
             mConnection = null;
         }
+
 
         return mConnection;
     }
@@ -184,7 +186,7 @@ public class MySQLDatabase implements Database {
                 reportDate = con.prepareStatement(GET_REPORT_DATE_STRING);
                 reportDate.setInt(1, result[0]);
 
-                rs = reportNeeded.executeQuery();
+                rs = reportDate.executeQuery();
 
                 while (rs.next()) {
                     result[1] = rs.getInt(1);
