@@ -28,7 +28,7 @@ public class WorkstressServer {
 
     private static final Logger logger = Logger.getLogger(WorkstressServer.class.getName());
     private Database mDatabase;
-    private static final String API_KEY = "0e5fdab2f34ede05531cc2a0784768f7bfa5a64c";
+    private static final String API_KEY = "";
 
     private static final int PORT = 8080;
     private Server mServer;
