@@ -154,6 +154,11 @@ public class ProtobufUploader implements DataUploader {
                 }
 
                 ServiceResponse response = mStub.newReports(message.build());
+
+                if (response.getResponse() > -1) {
+                    mCollector.completeOutstandingReports();
+                }
+
             }
         }).start();
 
@@ -161,7 +166,7 @@ public class ProtobufUploader implements DataUploader {
     }
 
     @Override
-    public void uploadHeartBeats(boolean resend, final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
+    public void uploadHeartBeats(final boolean resend, final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
 
         new Thread(new Runnable() {
             @Override
@@ -181,6 +186,22 @@ public class ProtobufUploader implements DataUploader {
                 }
 
                 ServiceResponse response = mStub.newheartrates(message.build());
+
+                int status = response.getResponse();
+
+                if (status > -1) {
+                    if (resend) {
+                        mCollector.completeOutstandingRates();
+                    } else {
+                        mCollector.completeRates();
+                    }
+                } else {
+                    mCollector.persistLog(heartbeats, timestamps);
+                }
+
+                if (status > 0) {
+                    mCollector.needReport(status, response.getRequesttime());
+                }
 
             }
         }).start();

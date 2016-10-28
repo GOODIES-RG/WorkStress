@@ -15,6 +15,7 @@ package uk.ac.mdx.cs.ie.workstress.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -41,6 +42,17 @@ public class WorkstressDB {
 
     public void closeDB() {
         dbHelper.close();
+    }
+
+    public synchronized long numOfRates() {
+        long result = 0;
+
+        SQLiteDatabase sqLiteDatabase = dbHelper.getReadableDatabase();
+
+        result = DatabaseUtils.queryNumEntries(sqLiteDatabase, "heartrates");
+        sqLiteDatabase.close();
+
+        return result;
     }
 
     public synchronized List<StressReport> getAllReports() {

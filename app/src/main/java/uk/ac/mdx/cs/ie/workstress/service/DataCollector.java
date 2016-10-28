@@ -35,9 +35,11 @@ import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 public class DataCollector {
 
     private static final String WORK_PREFS = "StressPrefs";
-    private XmlRpcUploader mUploader;
+    private DataUploader mUploader;
     private ArrayList<Integer> mHeartrates = new ArrayList<>(200);
     private ArrayList<Long> mTimestamps = new ArrayList<>(200);
+    private ArrayList<Integer> mToSendHeartrates = new ArrayList<>(200);
+    private ArrayList<Long> mToSendTimestamps = new ArrayList<>(200);
     private SharedPreferences mSettings;
     private Context mContext;
     private Timer mTimer;
@@ -66,7 +68,7 @@ public class DataCollector {
     public DataCollector(Context context, StressService service) {
         mContext = context;
         mService = service;
-        mUploader = new XmlRpcUploader(mContext, this);
+        mUploader = new ProtobufUploader(context, this);
         mDatabase = new WorkstressDB(mContext);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getInt("userid", 0);
@@ -254,21 +256,30 @@ public class DataCollector {
     }
 
     private void uploadLog() {
-        persistLog();
+
+        if (mToSendTimestamps.size() > 200) {
+            persistLog(mToSendHeartrates, mToSendTimestamps);
+        }
+
+        synchronized (mLogLock) {
+            mToSendHeartrates.addAll(mHeartrates);
+            mToSendTimestamps.addAll(mTimestamps);
+            mHeartrates.clear();
+            mTimestamps.clear();
+        }
+
+        mUploader.uploadHeartBeats(false, mUserID, mToSendHeartrates, mToSendTimestamps);
 
         if (mOutstandingRates > 0) {
             sendOutstandingRates();
         }
     }
 
-    private void persistLog() {
-
-        synchronized (mLogLock) {
-            mDatabase.addHeartrates(mHeartrates, mTimestamps);
-            mOutstandingRates += mHeartrates.size();
-            mHeartrates.clear();
-            mTimestamps.clear();
-        }
+    public void persistLog(List<Integer> rates, List<Long> timestamps) {
+        mDatabase.addHeartrates(rates, timestamps);
+        mOutstandingRates += rates.size();
+        rates.clear();
+        timestamps.clear();
 
     }
 
@@ -369,5 +380,10 @@ public class DataCollector {
         }
 
         mDatabase.emptyHeartrates();
+    }
+
+    public void completeRates() {
+        mToSendTimestamps.clear();
+        mToSendHeartrates.clear();
     }
 }
