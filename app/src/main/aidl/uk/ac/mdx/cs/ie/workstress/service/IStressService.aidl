@@ -29,4 +29,5 @@ interface IStressService {
     boolean isCollecting();
     void dismissNotification();
     List getAllUsers();
+    void deviceChange();
 }
