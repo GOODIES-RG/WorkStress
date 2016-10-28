@@ -16,6 +16,7 @@ import uk.ac.mdx.cs.ie.workstress.proto.RanOutOfTimeRequest;
 import uk.ac.mdx.cs.ie.workstress.proto.ServiceResponse;
 import uk.ac.mdx.cs.ie.workstress.proto.StressReportsRequest;
 import uk.ac.mdx.cs.ie.workstress.proto.UserInformation;
+import uk.ac.mdx.cs.ie.workstress.proto.WorkStressServiceGrpc;
 
 /**
  * Main Service class for handling GRPC Events
@@ -27,7 +28,7 @@ public class WorkstressServer {
 
     private static final Logger logger = Logger.getLogger(WorkstressServer.class.getName());
     private Database mDatabase;
-    private static final String API_KEY = "";
+    private static final String API_KEY = "0e5fdab2f34ede05531cc2a0784768f7bfa5a64c";
 
     private static final int PORT = 8080;
     private Server mServer;
@@ -126,6 +127,7 @@ public class WorkstressServer {
         @Override
         public void getallusers(AllUsersRequest req, StreamObserver<AllUsersResponse> responseObserver) {
 
+
             List<UserInformation> users = new ArrayList<>();
 
             if (req.getApikey().equals(API_KEY)) {
@@ -144,6 +146,7 @@ public class WorkstressServer {
         @Override
         public void newReports(StressReportsRequest req, StreamObserver<ServiceResponse> responseObserver) {
 
+
             int response = -1;
 
             if (req.getApikey().equals(API_KEY)) {
@@ -151,9 +154,6 @@ public class WorkstressServer {
                 try {
                     response = mDatabase.addNewReports(req.getUser(), req.getReportsList());
 
-                    if (response > -1) {
-
-                    }
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
