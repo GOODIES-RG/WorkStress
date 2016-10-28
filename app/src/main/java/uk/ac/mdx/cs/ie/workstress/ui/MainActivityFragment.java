@@ -17,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
@@ -65,6 +66,15 @@ public class MainActivityFragment extends Fragment implements DiscreteSeekBar.On
         if (username != null) {
             username.setAllCaps(true);
             username.setText(mActivity.mUsername);
+        }
+
+        if (mActivity.mIsPaired) {
+
+            Button button = (Button) mActivity.findViewById(R.id.btnConnectDevice);
+
+            if (button != null) {
+                button.setText(R.string.unpair_device);
+            }
         }
     }
 

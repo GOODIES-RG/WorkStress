@@ -19,7 +19,7 @@
     <string name="fix">fix</string>
     <string name="pair_device">Select Heartrate Device</string>
     <string name="device_paired">Heartrate Device Connected</string>
-    <string name="unpair_device">Disconnect Heartrate Device</string>
+    <string name="unpair_device">Disconnect/Change Heartrate Device</string>
     <string name="reportsubmitted">Survey submitted</string>
     <string name="undo">Undo</string>
     <string name="newreport">New Survey</string>

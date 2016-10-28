@@ -35,6 +35,7 @@ import android.view.View;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ThreadFactory;
 
 import uk.ac.mdx.cs.ie.workstress.R;
 import uk.ac.mdx.cs.ie.workstress.service.IStressService;
@@ -245,6 +246,10 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         public void onServiceConnected(ComponentName name, IBinder service) {
             mStressService = IStressService.Stub.asInterface(service);
             mBound = !mBound;
+
+            if (!mUsername.isEmpty()) {
+                startMonitor();
+            }
         }
 
         @Override
@@ -278,7 +283,13 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
     public void logout(View view) {
 
-        startStopMonitor();
+        try {
+            if (mStressService.isCollecting()) {
+                mStressService.stopHeartMonitor();
+            }
+        } catch (RemoteException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
 
         SharedPreferences.Editor editor = mSettings.edit();
         editor.putInt(USER_PREF, 0);
@@ -298,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         userFragment.show(mFragManager, "userdialog");
     }
 
-    private void startStopMonitor() {
+    private void startMonitor() {
 
         if (!mNoDoze) {
             Snackbar.make(mFabButton, getText(R.string.needbatteryignore), Snackbar.LENGTH_LONG)
@@ -307,9 +318,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
         try {
 
-            if (mStressService.isCollecting()) {
-                mStressService.stopHeartMonitor();
-            } else {
+            if (!mStressService.isCollecting()) {
                 if (mUser < 1) {
                     Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -318,8 +327,8 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
                 }
             }
 
-        } catch (RemoteException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
         }
     }
 
@@ -327,8 +336,8 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     public void doPositiveButtonClick(Object... para) {
         String password = (String) para[0];
 
-        //if (password.equals("setusername")) {
-        if (password.equals("")) {
+        if (password.equals("setusername")) {
+            //if (password.equals("")) {
             Intent intent = new Intent(this, UserSelectionActivity.class);
             startActivity(intent);
         } else {
@@ -379,7 +388,6 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         if (mUsername.isEmpty()) {
             setUsername();
         } else {
-
             mReportNumber = mSettings.getInt(REPORT_PREF, 0);
 
             if ((mReportNumber > 0) && (mReportNeeded)) {
