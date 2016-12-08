@@ -48,7 +48,7 @@ public class DataCollector {
     private static final int INTERVAL = 60000;
     private static final int REPORT_INTERVAL = 600000;
     private static final int RESENT_INTERVAL = 300000;
-    private int mUserID;
+    private String mUserID;
     private HeartRateMonitor mHeartrateMonitor;
     private StressService mService;
     private Timer mReportTimer;
@@ -71,7 +71,7 @@ public class DataCollector {
         mUploader = new ProtobufUploader(context, this);
         mDatabase = new WorkstressDB(mContext);
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
-        mUserID = mSettings.getInt("userid", 0);
+        mUserID = mSettings.getString("userid", "");
         mReportID = mSettings.getInt("reportid", 0);
         mHeartrateMonitor = new HeartRateMonitor(mContext);
         mHeartrateMonitor.addContextReceiver(new IContextReceiver() {
@@ -120,9 +120,9 @@ public class DataCollector {
 
     }
 
-    public void setUser(int user, String username) {
+    public void setUser(String user, String username) {
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.putInt("userid", user);
+        editor.putString("userid", user);
         editor.putString("username", username);
         editor.commit();
         mUserID = user;

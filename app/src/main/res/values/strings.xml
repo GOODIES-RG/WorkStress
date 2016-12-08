@@ -11,7 +11,7 @@
     <string name="password">Password</string>
     <string name="incorrectpaw">Incorrect Password</string>
     <string name="servicecantbind">Cannot connect to service. Try again later</string>
-    <string name="noreportneeded">You will receive a survey soon</string>
+    <string name="noreportneeded"></string>
     <string name="appisrunning">App is running</string>
     <string name="title_activity_pair_bluetooth_device">PairBluetoothDevice</string>
     <string name="rescan">Rescan</string>

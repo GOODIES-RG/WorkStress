@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import uk.ac.mdx.cs.ie.workstress.proto.HeartRate;
@@ -19,25 +20,25 @@ import uk.ac.mdx.cs.ie.workstress.proto.UserInformation;
 
 public class MySQLDatabase implements Database {
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/workstress?autoReconnect=true&useSSL=false";
+    private static final String DB_URL = "";
     private static final String DB_USER = "";
     private static final String DB_PASS = "";
     private Connection mConnection;
 
     private static final String GET_ALL_USERS_STRING =
-            "SELECT id, user_id from user ORDER BY user.id ASC;";
+            "SELECT userId, firstName, lastName from user ORDER BY userId ASC;";
 
     private static final String UPDATE_REPORT_STRING =
             "UPDATE report SET submit_date = ?, q1 = ?, q2 = ?, q3 = ?, q4 = ?, q5 = ?, q6 = ?, q7 = ?, q8 = ? WHERE id = ?";
 
     private static final String UPDATE_REPORT_NEEDED_STRING =
-            "UPDATE user SET reportneeded = 0 WHERE id = ?;";
+            "UPDATE user SET reportneeded = 0 WHERE userId = ?;";
 
     private static final String ADD_NEW_HEARTRATE_STRING =
-            "INSERT INTO heartbeat(user_id, datetime, rate) VALUES (?, ?, ?);";
+            "INSERT INTO heartbeat(userId, timestamp, rate) VALUES (?, ?, ?);";
 
     private static final String GET_REPORT_NEEDED_STRING =
-            "SELECT reportneeded FROM user WHERE id = ?";
+            "SELECT reportneeded FROM user WHERE userId = ?";
 
     private static final String GET_REPORT_DATE_STRING =
             "SELECT request_date FROM report WHERE id = ?";
@@ -87,8 +88,8 @@ public class MySQLDatabase implements Database {
             ResultSet rs = getUsers.executeQuery();
             while (rs.next()) {
                 UserInformation user = UserInformation.newBuilder()
-                        .setUserid(rs.getInt(1))
-                        .setUsername(rs.getString(2))
+                        .setUserid(rs.getString(1))
+                        .setUsername(rs.getString(2) + " " + rs.getString(3))
                         .build();
 
                 users.add(user);
@@ -109,7 +110,7 @@ public class MySQLDatabase implements Database {
     }
 
     @Override
-    public int addNewReports(int user, List<StressReport> reportsList) throws SQLException {
+    public int addNewReports(String user, List<StressReport> reportsList) throws SQLException {
 
         Connection con = getConnection();
 
@@ -162,7 +163,7 @@ public class MySQLDatabase implements Database {
     }
 
     @Override
-    public int[] isReportNeeded(int user) throws SQLException {
+    public int[] isReportNeeded(String user) throws SQLException {
 
         int[] result = new int[2];
         result[0] = -2;
@@ -174,7 +175,7 @@ public class MySQLDatabase implements Database {
         try {
             reportNeeded = con.prepareStatement(GET_REPORT_NEEDED_STRING);
 
-            reportNeeded.setInt(1, user);
+            reportNeeded.setString(1, user);
             ResultSet rs = reportNeeded.executeQuery();
 
             while (rs.next()) {
@@ -211,7 +212,7 @@ public class MySQLDatabase implements Database {
     }
 
     @Override
-    public int ranOfTime(int user) {
+    public int ranOfTime(String user) {
 
         Connection con = getConnection();
         int result = -2;
@@ -227,7 +228,7 @@ public class MySQLDatabase implements Database {
     }
 
     @Override
-    public int[] addNewHeartRates(int user, List<HeartRate> heartRateList) throws SQLException {
+    public int[] addNewHeartRates(String user, List<Integer> heartRates, List<Long> timestamps) throws SQLException {
 
         Connection con = getConnection();
 
@@ -247,15 +248,17 @@ public class MySQLDatabase implements Database {
 
             newHeartRates = con.prepareStatement(ADD_NEW_HEARTRATE_STRING);
 
-            for (HeartRate rate : heartRateList) {
-                newHeartRates.setInt(1, user);
-                newHeartRates.setLong(2, rate.getTimestamp());
-                newHeartRates.setInt(3, rate.getHeartrate());
+            int size = heartRates.size();
+
+            for (int i = 0; i < size; i++) {
+                newHeartRates.setString(1, user);
+                newHeartRates.setTimestamp(2, new Timestamp(timestamps.get(i)));
+                newHeartRates.setInt(3, heartRates.get(i));
                 newHeartRates.addBatch();
             }
 
             newHeartRates.executeBatch();
-            result = isReportNeeded(user);
+            result[0] = 0;
             con.commit();
 
         } catch (SQLException e) {
@@ -271,14 +274,14 @@ public class MySQLDatabase implements Database {
         return result;
     }
 
-    private static void resetReportNeeded(int user, Connection con) throws SQLException {
+    private static void resetReportNeeded(String user, Connection con) throws SQLException {
 
         PreparedStatement resetReportNeeded = null;
 
         try {
 
             resetReportNeeded = con.prepareStatement(UPDATE_REPORT_NEEDED_STRING);
-            resetReportNeeded.setInt(1, user);
+            resetReportNeeded.setString(1, user);
             resetReportNeeded.execute();
 
         } catch (SQLException e) {

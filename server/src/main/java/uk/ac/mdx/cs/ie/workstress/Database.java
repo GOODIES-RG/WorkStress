@@ -3,7 +3,6 @@ package uk.ac.mdx.cs.ie.workstress;
 import java.sql.SQLException;
 import java.util.List;
 
-import uk.ac.mdx.cs.ie.workstress.proto.HeartRate;
 import uk.ac.mdx.cs.ie.workstress.proto.StressReport;
 import uk.ac.mdx.cs.ie.workstress.proto.UserInformation;
 
@@ -20,11 +19,11 @@ public interface Database {
 
     List<UserInformation> getAllUsers(List<UserInformation> users) throws SQLException;
 
-    int addNewReports(int user, List<StressReport> reportsList) throws SQLException;
+    int addNewReports(String user, List<StressReport> reportsList) throws SQLException;
 
-    int[] isReportNeeded(int user) throws SQLException;
+    int[] isReportNeeded(String user) throws SQLException;
 
-    int ranOfTime(int user);
+    int ranOfTime(String user);
 
-    int[] addNewHeartRates(int user, List<HeartRate> heartRateList) throws SQLException;
+    int[] addNewHeartRates(String user, List<Integer> heartRates, List<Long> timestamps) throws SQLException;
 }

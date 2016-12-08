@@ -52,7 +52,7 @@ public class UserSelectionActivity extends AppCompatActivity {
     private SharedPreferences mSettings;
     private Context mContext;
     private Toolbar mToolbar;
-    private int mUser = 0;
+    private String mUser = "";
     private static final String STRESS_PREFS = "StressPrefs";
     private static final String USER_PREF = "userid";
 
@@ -61,7 +61,7 @@ public class UserSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mContext = getApplicationContext();
         mSettings = mContext.getSharedPreferences(STRESS_PREFS, 0);
-        mUser = mSettings.getInt(USER_PREF, 0);
+        mUser = mSettings.getString(USER_PREF, "");
         mFragManager = getSupportFragmentManager();
         setContentView(R.layout.activity_user);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,7 +93,7 @@ public class UserSelectionActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setUser(int user, String username) {
+    public void setUser(String user, String username) {
         mUser = user;
 
         if (mStressService != null) {
@@ -114,9 +114,10 @@ public class UserSelectionActivity extends AppCompatActivity {
             users = mStressService.getAllUsers();
             Collections.sort(users);
 
-            if (mUser > 0 && (users.size() > mUser)) {
-                WorkstressUser user = (WorkstressUser) users.get(mUser - 1);
-                user.checked = true;
+            for (Object user : users) {
+                if (((WorkstressUser) user).userid.equals(mUser)) {
+                    ((WorkstressUser) user).checked = true;
+                }
             }
 
         } catch (RemoteException e) {

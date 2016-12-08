@@ -22,7 +22,7 @@ import android.os.Parcelable;
  */
 public class WorkstressUser implements Parcelable, Comparable<WorkstressUser> {
 
-    public int userid;
+    public String userid;
     public String username;
     public boolean checked = false;
 
@@ -33,7 +33,7 @@ public class WorkstressUser implements Parcelable, Comparable<WorkstressUser> {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(userid);
+        dest.writeString(userid);
         dest.writeString(username);
     }
 
@@ -56,12 +56,22 @@ public class WorkstressUser implements Parcelable, Comparable<WorkstressUser> {
     };
 
     private WorkstressUser(Parcel in) {
-        userid = in.readInt();
+        userid = in.readString();
         username = in.readString();
     }
 
     @Override
     public int compareTo(WorkstressUser another) {
-        return userid - another.userid;
+        return userid.compareTo(another.userid);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (o instanceof WorkstressUser) {
+            return (userid.equals(((WorkstressUser) o).userid));
+        } else {
+            return false;
+        }
     }
 }

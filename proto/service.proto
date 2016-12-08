@@ -36,8 +36,9 @@ service WorkStressService {
 
 message HeartRatesRequest {
     string apikey = 1;
-    int32 user = 2;
-    repeated HeartRate heartrates = 3;
+    string user = 2;
+    repeated int32 heartrates = 3;
+    repeated int64 timestamps = 4;
 }
 
 message AllUsersRequest {
@@ -49,18 +50,13 @@ message AllUsersResponse {
 }
 
 message UserInformation {
-    int32 userid = 1;
+    string userid = 1;
     string username = 2;
-}
-
-message HeartRate {
-    int32 heartrate = 1;
-    int64 timestamp = 2;
 }
 
 message StressReportsRequest {
     string apikey = 1;
-    int32 user = 2;
+    string user = 2;
     repeated StressReport reports = 3;
 }
 
@@ -78,7 +74,7 @@ message StressReport {
 
 message RanOutOfTimeRequest {
     string apikey = 1;
-    int32 user = 2;
+    string user = 2;
 }
 
 message ServiceResponse {

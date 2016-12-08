@@ -23,7 +23,7 @@ import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 interface IStressService {
 
     boolean sendReport(in StressReport report);
-    boolean setUser(int userid, String username);
+    boolean setUser(String userid, String username);
     boolean startHeartMonitor();
     boolean stopHeartMonitor();
     boolean isCollecting();

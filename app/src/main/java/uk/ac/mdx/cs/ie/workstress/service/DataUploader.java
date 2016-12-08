@@ -12,13 +12,13 @@ import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
  */
 public interface DataUploader {
 
-    boolean ranOutOfTime(final Integer user);
+    boolean ranOutOfTime(final String user);
 
     List getAllUsers();
 
-    boolean uploadReports(final Integer user, final List<StressReport> reports);
+    boolean uploadReports(final String user, final List<StressReport> reports);
 
-    void uploadHeartBeats(final boolean resend, final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps);
+    void uploadHeartBeats(final boolean resend, final String user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps);
 
     void closeConnection();
 }

@@ -86,12 +86,13 @@ public class WorkstressServer {
             if (req.getApikey().equals(API_KEY)) {
 
                 try {
-                    int user = req.getUser();
+                    String user = req.getUser();
 
                     if (req.getHeartratesCount() < 1) {
-                        response = mDatabase.isReportNeeded(user);
+                        //response = mDatabase.isReportNeeded(user);
+                        response[0] = 0;
                     } else {
-                        response = mDatabase.addNewHeartRates(user, req.getHeartratesList());
+                        response = mDatabase.addNewHeartRates(user, req.getHeartratesList(), req.getTimestampsList());
                     }
 
                 } catch (SQLException e) {

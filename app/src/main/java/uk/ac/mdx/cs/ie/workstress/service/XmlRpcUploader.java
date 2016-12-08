@@ -75,7 +75,7 @@ public class XmlRpcUploader implements DataUploader {
         }
     }
 
-    public boolean ranOutOfTime(final Integer user) {
+    public boolean ranOutOfTime(final String user) {
 
         Thread t = new Thread(new Runnable() {
             @Override
@@ -123,7 +123,7 @@ public class XmlRpcUploader implements DataUploader {
 
                         for (Map.Entry<String, String> entry : results.entrySet()) {
                             WorkstressUser user = new WorkstressUser();
-                            user.userid = Integer.parseInt(entry.getKey());
+                            user.userid = entry.getKey();
                             user.username = entry.getValue();
                             users.add(user);
                         }
@@ -148,7 +148,7 @@ public class XmlRpcUploader implements DataUploader {
         return users;
     }
 
-    public boolean uploadReports(final Integer user, final List<StressReport> reports) {
+    public boolean uploadReports(final String user, final List<StressReport> reports) {
 
         final boolean[] success = {false};
 
@@ -203,7 +203,7 @@ public class XmlRpcUploader implements DataUploader {
         return true;
     }
 
-    public void uploadHeartBeats(final boolean resend, final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
+    public void uploadHeartBeats(final boolean resend, final String user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
 
         new Thread(new Runnable() {
             @Override

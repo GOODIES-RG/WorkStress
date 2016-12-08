@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     private static final String REPORT_PREF = "reportid";
     private static final String REPORT_SUBMIT_TIME_PREF = "reportstime";
     private static final String USER_NAME = "username";
-    private int mUser;
+    private String mUser;
     public String mUsername = "";
     public boolean mIsPaired = true;
     private SharedPreferences mSettings;
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
 
                     if (mBound) {
 
-                        if (mUser < 1) {
+                        if (mUser.equals("")) {
                             Snackbar.make(view, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
                                     .setAction("Action", null).show();
                         } else {
@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         try {
 
             if (!mStressService.isCollecting()) {
-                if (mUser < 1) {
+                if (mUser.equals("")) {
                     Snackbar.make(mFabButton, getText(R.string.userunknown), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
                 } else {
@@ -382,7 +382,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     @Override
     public void onResume() {
         super.onResume();
-        mUser = mSettings.getInt(USER_PREF, 0);
+        mUser = mSettings.getString(USER_PREF, "");
         mUsername = mSettings.getString(USER_NAME, "");
 
         if (mUsername.isEmpty()) {

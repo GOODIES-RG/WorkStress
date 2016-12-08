@@ -74,7 +74,7 @@ public class UserSelectionFragment extends Fragment {
 
                 if (user.checked) {
                     user.checked = false;
-                    mActivity.setUser(0, "");
+                    mActivity.setUser("", "");
                 } else {
                     user.checked = true;
                     mActivity.setUser(user.userid, user.username);
@@ -100,7 +100,7 @@ public class UserSelectionFragment extends Fragment {
 
         if (users.size() == 0) {
             WorkstressUser user = new WorkstressUser();
-            user.userid = 0;
+            user.userid = "";
             user.username = "No Users found...";
             users.add(user);
         }

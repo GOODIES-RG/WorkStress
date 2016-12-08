@@ -26,7 +26,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import uk.ac.mdx.cs.ie.workstress.proto.AllUsersRequest;
 import uk.ac.mdx.cs.ie.workstress.proto.AllUsersResponse;
-import uk.ac.mdx.cs.ie.workstress.proto.HeartRate;
 import uk.ac.mdx.cs.ie.workstress.proto.HeartRatesRequest;
 import uk.ac.mdx.cs.ie.workstress.proto.RanOutOfTimeRequest;
 import uk.ac.mdx.cs.ie.workstress.proto.ServiceResponse;
@@ -77,7 +76,7 @@ public class ProtobufUploader implements DataUploader {
     }
 
     @Override
-    public boolean ranOutOfTime(final Integer user) {
+    public boolean ranOutOfTime(final String user) {
 
         new Thread(new Runnable() {
             @Override
@@ -129,7 +128,7 @@ public class ProtobufUploader implements DataUploader {
     }
 
     @Override
-    public boolean uploadReports(final Integer user, final List<StressReport> reports) {
+    public boolean uploadReports(final String user, final List<StressReport> reports) {
 
         new Thread(new Runnable() {
             @Override
@@ -166,7 +165,7 @@ public class ProtobufUploader implements DataUploader {
     }
 
     @Override
-    public void uploadHeartBeats(final boolean resend, final Integer user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
+    public void uploadHeartBeats(final boolean resend, final String user, final ArrayList<Integer> heartbeats, final ArrayList<Long> timestamps) {
 
         new Thread(new Runnable() {
             @Override
@@ -175,15 +174,8 @@ public class ProtobufUploader implements DataUploader {
 
                 message.setApikey(API_KEY);
                 message.setUser(user);
-
-                int size = heartbeats.size();
-
-                for (int i = 0; i < size; i++) {
-                    HeartRate.Builder rate = HeartRate.newBuilder();
-                    rate.setHeartrate(heartbeats.get(i));
-                    rate.setTimestamp(timestamps.get(i));
-                    message.addHeartrates(rate.build());
-                }
+                message.addAllHeartrates(heartbeats);
+                message.addAllTimestamps(timestamps);
 
                 ServiceResponse response = mStub.newheartrates(message.build());
 
@@ -191,6 +183,7 @@ public class ProtobufUploader implements DataUploader {
 
                 if (status > -1) {
                     if (resend) {
+
                         mCollector.completeOutstandingRates();
                     } else {
                         mCollector.completeRates();
