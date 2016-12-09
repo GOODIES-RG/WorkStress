@@ -18,6 +18,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ import uk.ac.mdx.cs.ie.workstress.proto.ServiceResponse;
 import uk.ac.mdx.cs.ie.workstress.proto.StressReportsRequest;
 import uk.ac.mdx.cs.ie.workstress.proto.UserInformation;
 import uk.ac.mdx.cs.ie.workstress.proto.WorkStressServiceGrpc;
+import uk.ac.mdx.cs.ie.workstress.utility.ExplicitIntentGenerator;
 import uk.ac.mdx.cs.ie.workstress.utility.StressReport;
 import uk.ac.mdx.cs.ie.workstress.utility.WorkstressUser;
 
@@ -43,7 +45,7 @@ import uk.ac.mdx.cs.ie.workstress.utility.WorkstressUser;
 public class ProtobufUploader implements DataUploader {
 
     private String SERVER_URL;
-    private static final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 8081;
     private String API_KEY;
     private static final String LOG_TAG = "ProtobufUploader";
     private DataCollector mCollector;
@@ -81,6 +83,15 @@ public class ProtobufUploader implements DataUploader {
         new Thread(new Runnable() {
             @Override
             public void run() {
+
+                try {
+                    if (!isConnected()) {
+                        return;
+                    }
+                } catch (Exception e) {
+                    return;
+                }
+
                 RanOutOfTimeRequest message = RanOutOfTimeRequest.newBuilder()
                         .setApikey(API_KEY)
                         .setUser(user)
@@ -101,6 +112,15 @@ public class ProtobufUploader implements DataUploader {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
+
+                try {
+                    if (!isConnected()) {
+                        return;
+                    }
+                } catch (Exception e) {
+                    return;
+                }
+
                 AllUsersRequest message = AllUsersRequest.newBuilder()
                         .setApikey(API_KEY)
                         .build();
@@ -133,6 +153,15 @@ public class ProtobufUploader implements DataUploader {
         new Thread(new Runnable() {
             @Override
             public void run() {
+
+                try {
+                    if (!isConnected()) {
+                        return;
+                    }
+                } catch (Exception e) {
+                    return;
+                }
+
                 StressReportsRequest.Builder message = StressReportsRequest.newBuilder();
 
                 message.setApikey(API_KEY);
@@ -170,6 +199,15 @@ public class ProtobufUploader implements DataUploader {
         new Thread(new Runnable() {
             @Override
             public void run() {
+
+                try {
+                    if (!isConnected()) {
+                        return;
+                    }
+                } catch (Exception e) {
+                    return;
+                }
+
                 HeartRatesRequest.Builder message = HeartRatesRequest.newBuilder();
 
                 message.setApikey(API_KEY);
@@ -207,6 +245,11 @@ public class ProtobufUploader implements DataUploader {
         } catch (InterruptedException e) {
             Log.e(LOG_TAG, e.getMessage());
         }
+    }
+
+    public boolean isConnected() throws InterruptedException, IOException {
+        String command = "ping -c 1 google.com";
+        return (Runtime.getRuntime().exec(command).waitFor() == 0);
     }
 
 }
