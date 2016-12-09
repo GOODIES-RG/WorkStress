@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
         }
 
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.putInt(USER_PREF, 0);
+        editor.putString(USER_PREF, "");
         editor.putString(USER_NAME, "");
         editor.commit();
 
