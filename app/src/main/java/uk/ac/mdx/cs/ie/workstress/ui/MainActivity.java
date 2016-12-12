@@ -300,8 +300,11 @@ public class MainActivity extends AppCompatActivity implements DialogReturnInter
     }
 
     public void pairBluetoothDevice(View v) {
-        Intent i = new Intent(this, BluetoothDeviceActivity.class);
-        startActivity(i);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            Intent i = new Intent(this, BluetoothDeviceActivity.class);
+            startActivity(i);
+        }
     }
 
     private void setUsername() {

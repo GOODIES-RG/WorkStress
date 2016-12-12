@@ -73,42 +73,47 @@ public class DataCollector {
         mSettings = mContext.getSharedPreferences(WORK_PREFS, 0);
         mUserID = mSettings.getString("userid", "");
         mReportID = mSettings.getInt("reportid", 0);
-        mHeartrateMonitor = new HeartRateMonitor(mContext);
-        mHeartrateMonitor.addContextReceiver(new IContextReceiver() {
-            @Override
-            public void newContextValue(String name, long value) {
-                log((int) value);
-            }
 
-            @Override
-            public void newContextValue(String name, double value) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
 
-            }
-
-            @Override
-            public void newContextValue(String name, boolean value) {
-                if (value == false) {
-                    mService.showConnectionTroubleNotification();
-                } else {
-                    mService.dismissConnectionNotification();
+            mHeartrateMonitor = new HeartRateMonitor(mContext);
+            mHeartrateMonitor.addContextReceiver(new IContextReceiver() {
+                @Override
+                public void newContextValue(String name, long value) {
+                    log((int) value);
                 }
-            }
 
-            @Override
-            public void newContextValue(String name, String value) {
+                @Override
+                public void newContextValue(String name, double value) {
 
-            }
+                }
 
-            @Override
-            public void newContextValue(String name, Object value) {
+                @Override
+                public void newContextValue(String name, boolean value) {
+                    if (value == false) {
+                        mService.showConnectionTroubleNotification();
+                    } else {
+                        mService.dismissConnectionNotification();
+                    }
+                }
 
-            }
+                @Override
+                public void newContextValue(String name, String value) {
 
-            @Override
-            public void newContextValues(Map<String, String> values) {
+                }
 
-            }
-        });
+                @Override
+                public void newContextValue(String name, Object value) {
+
+                }
+
+                @Override
+                public void newContextValues(Map<String, String> values) {
+
+                }
+            });
+
+        }
 
         mOutstandingRates = mDatabase.numOfRates();
 
@@ -199,7 +204,7 @@ public class DataCollector {
     private void log(int heartrate) {
         synchronized (mLogLock) {
 
-            long time = System.currentTimeMillis() / 1000L;
+            long time = System.currentTimeMillis();
 
             if (time > mLastHeartTime) {
                 mHeartrates.add(heartrate);
